@@ -1,0 +1,616 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#070810">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" type="image/png" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-192.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="NPT">
+<title>NPT - NEET Progress Tracker</title>
+<style>
+:root{
+  --bg:#070810; --bg2:#0b0d1a;
+  --card:rgba(255,255,255,.045); --card2:rgba(255,255,255,.07);
+  --border:rgba(255,255,255,.09); --border2:rgba(255,255,255,.14);
+  --txt:#eef0ff; --dim:#8b90b3; --dim2:#5a5e80;
+  --purple:#8b5cf6; --purple2:#a78bfa; --indigo:#6366f1; --blue:#38bdf8;
+  --green:#34d399; --orange:#fb923c; --red:#f87171; --yellow:#fbbf24;
+  --r:22px;
+  --grad:linear-gradient(135deg,#8b5cf6,#6366f1 55%,#38bdf8);
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html{scroll-behavior:smooth}
+body{
+  font-family:-apple-system,BlinkMacSystemFont,"Inter","Segoe UI",Roboto,sans-serif;
+  background:var(--bg); color:var(--txt); min-height:100vh;
+  max-width:480px; margin:0 auto; overflow-x:hidden;
+  -webkit-font-smoothing:antialiased;
+}
+/* ambient glow orbs */
+.orb{position:fixed;border-radius:50%;filter:blur(90px);opacity:.35;pointer-events:none;z-index:0}
+.orb1{width:340px;height:340px;background:#6d28d9;top:-120px;left:-100px;animation:drift 14s ease-in-out infinite alternate}
+.orb2{width:280px;height:280px;background:#1e40af;bottom:-80px;right:-90px;animation:drift 18s ease-in-out infinite alternate-reverse}
+.orb3{width:200px;height:200px;background:#0e7490;top:40%;left:60%;opacity:.18;animation:drift 22s ease-in-out infinite alternate}
+@keyframes drift{from{transform:translate(0,0) scale(1)}to{transform:translate(30px,24px) scale(1.08)}}
+header{position:relative;z-index:2;padding:22px 20px 10px;display:flex;align-items:center;justify-content:space-between}
+.logo{font-size:26px;font-weight:800;letter-spacing:.5px;background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
+.logo-sub{font-size:10.5px;color:var(--dim);letter-spacing:2.2px;text-transform:uppercase;margin-top:1px}
+.streak-chip{display:flex;align-items:center;gap:6px;background:rgba(251,146,60,.10);border:1px solid rgba(251,146,60,.30);
+  padding:7px 13px;border-radius:999px;font-weight:700;font-size:14px;color:var(--orange);
+  box-shadow:0 0 22px rgba(251,146,60,.16);transition:transform .15s}
+.streak-chip:active{transform:scale(.93)}
+main{position:relative;z-index:1;padding:6px 16px 110px}
+.page{display:none;animation:pageIn .32s cubic-bezier(.2,.8,.25,1)}
+.page.active{display:block}
+@keyframes pageIn{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
+.date-line{color:var(--dim);font-size:13px;margin:2px 4px 16px}
+.hello{font-size:21px;font-weight:700;margin:0 4px 4px}
+.glass{background:var(--card);border:1px solid var(--border);border-radius:var(--r);
+  backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);
+  box-shadow:0 8px 32px rgba(0,0,0,.35)}
+.card{padding:18px;margin-bottom:14px}
+.card-title{font-size:12px;font-weight:700;letter-spacing:1.6px;text-transform:uppercase;color:var(--dim);margin-bottom:14px;display:flex;justify-content:space-between;align-items:center}
+.card-title .edit{font-size:11px;color:var(--purple2);letter-spacing:.5px;cursor:pointer;text-transform:none;font-weight:600;padding:4px 8px;border-radius:8px;background:rgba(139,92,246,.12)}
+/* hero ring */
+.hero{display:flex;align-items:center;gap:20px}
+.ring-wrap{position:relative;width:128px;height:128px;flex:none}
+.ring-wrap svg{transform:rotate(-90deg)}
+.ring-bg{fill:none;stroke:rgba(255,255,255,.07);stroke-width:10}
+.ring-fg{fill:none;stroke:url(#ringGrad);stroke-width:10;stroke-linecap:round;transition:stroke-dashoffset 1.1s cubic-bezier(.2,.8,.25,1)}
+.ring-center{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.ring-pct{font-size:26px;font-weight:800;background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
+.ring-lbl{font-size:9.5px;color:var(--dim);letter-spacing:1.4px;text-transform:uppercase;margin-top:2px}
+.hero-stats{display:flex;flex-direction:column;gap:9px;flex:1}
+.hstat{display:flex;align-items:center;gap:10px}
+.hdot{width:9px;height:9px;border-radius:50%;flex:none}
+.hstat .k{font-size:12px;color:var(--dim)}
+.hstat .v{font-size:15px;font-weight:700;margin-left:auto}
+/* stat grid */
+.stat-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:14px}
+.stat{padding:14px 8px;text-align:center;border-radius:18px;position:relative;overflow:hidden}
+.stat .ico{font-size:17px}
+.stat .num{font-size:19px;font-weight:800;margin-top:5px}
+.stat .cap{font-size:10px;color:var(--dim);margin-top:3px;letter-spacing:.4px}
+.stat::after{content:"";position:absolute;inset:0;background:radial-gradient(circle at 50% -30%,rgba(255,255,255,.08),transparent 65%)}
+/* target bars */
+.tbar{margin-bottom:13px}
+.tbar:last-child{margin-bottom:0}
+.tbar-top{display:flex;justify-content:space-between;font-size:12.5px;margin-bottom:7px}
+.tbar-top .name{color:var(--dim)}
+.tbar-top .val{font-weight:700}
+.track{height:8px;background:rgba(255,255,255,.06);border-radius:99px;overflow:hidden}
+.fill{height:100%;border-radius:99px;width:0%;transition:width 1s cubic-bezier(.2,.8,.25,1);box-shadow:0 0 12px currentColor}
+/* quick actions */
+.qa-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
+.qa{padding:15px 6px;border-radius:18px;text-align:center;cursor:pointer;transition:transform .15s,background .2s;border:1px solid var(--border)}
+.qa:active{transform:scale(.94);background:var(--card2)}
+.qa .ico{font-size:20px}
+.qa .t{font-size:11px;font-weight:600;color:var(--dim);margin-top:6px}
+/* buttons */
+.btn{display:block;width:100%;padding:15px;border:none;border-radius:16px;font-size:15px;font-weight:700;cursor:pointer;
+  background:var(--grad);color:#fff;letter-spacing:.3px;box-shadow:0 6px 24px rgba(124,58,237,.35);transition:transform .15s,box-shadow .2s;font-family:inherit}
+.btn:active{transform:scale(.97)}
+.btn.ghost{background:rgba(255,255,255,.06);box-shadow:none;border:1px solid var(--border)}
+.btn.sm{padding:11px;font-size:13px;border-radius:13px}
+/* subject chips */
+.chips{display:flex;gap:8px;overflow-x:auto;padding:2px 2px 12px;scrollbar-width:none}
+.chips::-webkit-scrollbar{display:none}
+.chip{flex:none;padding:8px 15px;border-radius:999px;font-size:12.5px;font-weight:600;color:var(--dim);
+  background:rgba(255,255,255,.05);border:1px solid var(--border);cursor:pointer;transition:all .2s}
+.chip.on{color:#fff;background:var(--grad);border-color:transparent;box-shadow:0 4px 18px rgba(124,58,237,.4)}
+/* chapter rows */
+.ch-row{display:flex;align-items:center;gap:12px;padding:13px 14px;margin-bottom:9px;border-radius:16px}
+.ch-row .nm{flex:1;font-size:13.5px;font-weight:600;line-height:1.35}
+.ch-row .sub2{font-size:10.5px;color:var(--dim2);margin-top:2px}
+.status-pill{flex:none;font-size:10px;font-weight:700;letter-spacing:.6px;text-transform:uppercase;padding:6px 11px;border-radius:999px;cursor:pointer;transition:transform .12s;user-select:none}
+.status-pill:active{transform:scale(.9)}
+.st0{color:#9aa0c0;background:rgba(255,255,255,.06)}
+.st1{color:var(--blue);background:rgba(56,189,248,.12);box-shadow:0 0 14px rgba(56,189,248,.12)}
+.st2{color:var(--green);background:rgba(52,211,153,.12);box-shadow:0 0 14px rgba(52,211,153,.12)}
+.st3{color:var(--purple2);background:rgba(167,139,250,.13);box-shadow:0 0 14px rgba(139,92,246,.15)}
+.acc-step{display:flex;align-items:center;gap:7px;flex:none}
+.acc-step button{width:24px;height:24px;border-radius:8px;border:1px solid var(--border);background:rgba(255,255,255,.06);color:var(--txt);font-size:14px;cursor:pointer;line-height:1}
+.acc-step .av{font-size:12px;font-weight:700;min-width:38px;text-align:center}
+/* timer */
+.timer-ring-wrap{position:relative;width:230px;height:230px;margin:10px auto 18px}
+.timer-ring-wrap svg{transform:rotate(-90deg)}
+.t-ring-bg{fill:none;stroke:rgba(255,255,255,.06);stroke-width:12}
+.t-ring-fg{fill:none;stroke:url(#timerGrad);stroke-width:12;stroke-linecap:round;transition:stroke-dashoffset .9s linear}
+.timer-center{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.timer-time{font-size:44px;font-weight:800;font-variant-numeric:tabular-nums;letter-spacing:1px}
+.timer-sub{font-size:11px;color:var(--dim);letter-spacing:2px;text-transform:uppercase;margin-top:4px}
+.timer-subj{font-size:13px;color:var(--purple2);font-weight:700;margin-top:6px}
+.timer-btns{display:flex;gap:10px}
+.timer-btns .btn{flex:1}
+.sess-row{display:flex;justify-content:space-between;font-size:12.5px;padding:10px 4px;border-bottom:1px solid rgba(255,255,255,.05);color:var(--dim)}
+.sess-row:last-child{border-bottom:none}
+.sess-row b{color:var(--txt)}
+/* questions */
+.field{margin-bottom:13px}
+.field label{display:block;font-size:11px;color:var(--dim);letter-spacing:1px;text-transform:uppercase;margin-bottom:7px;font-weight:700}
+.field input{width:100%;padding:13px 14px;border-radius:14px;border:1px solid var(--border);background:rgba(255,255,255,.05);color:var(--txt);font-size:15px;font-family:inherit;outline:none;transition:border-color .2s}
+.field input:focus{border-color:var(--purple)}
+input[type=number]::-webkit-inner-spin-button,input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;margin:0}input[type=number]{-moz-appearance:textfield}
+/* analytics */
+.bars{display:flex;align-items:flex-end;gap:9px;height:130px;padding:6px 4px 0}
+.bar-col{flex:1;display:flex;flex-direction:column;align-items:center;gap:7px;height:100%;justify-content:flex-end}
+.bar{width:100%;max-width:30px;border-radius:8px 8px 3px 3px;background:var(--grad);min-height:4px;box-shadow:0 0 14px rgba(124,58,237,.30);transition:height .8s cubic-bezier(.2,.8,.25,1)}
+.bar.today{background:linear-gradient(180deg,#34d399,#0ea5e9);box-shadow:0 0 16px rgba(52,211,153,.35)}
+.bar-day{font-size:10px;color:var(--dim2)}
+.bar-h{font-size:9.5px;color:var(--dim);font-weight:700}
+.sbar{margin-bottom:12px}
+.sbar-top{display:flex;justify-content:space-between;font-size:12.5px;margin-bottom:6px}
+.weak-row{display:flex;justify-content:space-between;align-items:center;padding:10px 12px;border-radius:13px;background:rgba(248,113,113,.07);border:1px solid rgba(248,113,113,.18);margin-bottom:8px;font-size:12.5px}
+.weak-row .pct{color:var(--red);font-weight:800}
+.empty{color:var(--dim2);font-size:12.5px;text-align:center;padding:14px 6px}
+/* bottom nav */
+nav{position:fixed;bottom:0;left:0;right:0;z-index:10;max-width:480px;margin:0 auto;
+  background:rgba(10,12,24,.82);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);
+  border-top:1px solid var(--border);display:flex;padding:8px 6px calc(10px + env(safe-area-inset-bottom))}
+.nav-item{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;padding:7px 0;border-radius:14px;
+  color:var(--dim2);font-size:9.5px;font-weight:600;letter-spacing:.4px;cursor:pointer;transition:all .2s;border:none;background:none;font-family:inherit}
+.nav-item .ni{font-size:19px;transition:transform .2s}
+.nav-item.on{color:var(--purple2)}
+.nav-item.on .ni{transform:translateY(-2px) scale(1.12);filter:drop-shadow(0 0 8px rgba(139,92,246,.7))}
+/* modal */
+.modal-bg{position:fixed;inset:0;background:rgba(4,5,12,.7);backdrop-filter:blur(6px);z-index:50;display:none;align-items:flex-end;justify-content:center}
+.modal-bg.open{display:flex;animation:fadeIn .2s}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+.modal{width:100%;max-width:480px;background:#11132a;border:1px solid var(--border2);border-radius:26px 26px 0 0;padding:22px 20px calc(24px + env(safe-area-inset-bottom));animation:slideUp .3s cubic-bezier(.2,.8,.25,1)}
+@keyframes slideUp{from{transform:translateY(60px);opacity:0}to{transform:translateY(0);opacity:1}}
+.modal h3{font-size:16px;margin-bottom:16px}
+.sec-label{font-size:13px;font-weight:700;margin:18px 4px 10px;color:var(--dim);letter-spacing:.6px}
+.progress-thin{height:6px;background:rgba(255,255,255,.06);border-radius:99px;overflow:hidden;margin-bottom:14px}
+.toast{position:fixed;bottom:96px;left:50%;transform:translateX(-50%) translateY(20px);background:#1a1d38;border:1px solid var(--border2);
+  padding:11px 20px;border-radius:999px;font-size:13px;font-weight:600;z-index:60;opacity:0;transition:all .3s;pointer-events:none;box-shadow:0 8px 30px rgba(0,0,0,.5)}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+.linkish{color:var(--purple2);font-size:12px;font-weight:600;cursor:pointer;text-align:center;padding:10px}
+</style>
+</head>
+<body>
+<div class="orb orb1"></div><div class="orb orb2"></div><div class="orb orb3"></div>
+
+<header>
+  <div>
+    <div class="logo">NPT</div>
+    <div class="logo-sub">NEET Progress Tracker</div>
+  </div>
+  <div class="streak-chip" id="streakChip">🔥 <span id="streakNum">0</span></div>
+</header>
+
+<main>
+  <!-- ============ HOME ============ -->
+  <section class="page active" id="page-home">
+    <div class="hello" id="helloLine">Welcome back</div>
+    <div class="date-line" id="dateLine"></div>
+
+    <div class="glass card">
+      <div class="card-title">Syllabus Progress</div>
+      <div class="hero">
+        <div class="ring-wrap">
+          <svg width="128" height="128" viewBox="0 0 128 128">
+            <defs><linearGradient id="ringGrad" x1="0" y1="0" x2="1" y2="1">
+              <stop offset="0%" stop-color="#8b5cf6"/><stop offset="55%" stop-color="#6366f1"/><stop offset="100%" stop-color="#38bdf8"/>
+            </linearGradient></defs>
+            <circle class="ring-bg" cx="64" cy="64" r="54"/>
+            <circle class="ring-fg" id="overallRing" cx="64" cy="64" r="54" stroke-dasharray="339.3" stroke-dashoffset="339.3"/>
+          </svg>
+          <div class="ring-center">
+            <div class="ring-pct" id="overallPct">0%</div>
+            <div class="ring-lbl">complete</div>
+          </div>
+        </div>
+        <div class="hero-stats">
+          <div class="hstat"><span class="hdot" style="background:var(--green)"></span><span class="k">Done</span><span class="v" id="hDone">0</span></div>
+          <div class="hstat"><span class="hdot" style="background:var(--blue)"></span><span class="k">In progress</span><span class="v" id="hProg">0</span></div>
+          <div class="hstat"><span class="hdot" style="background:var(--purple2)"></span><span class="k">Revision</span><span class="v" id="hRev">0</span></div>
+          <div class="hstat"><span class="hdot" style="background:#3a3f63"></span><span class="k">Remaining</span><span class="v" id="hLeft">0</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="stat-row">
+      <div class="glass stat"><div class="ico">⏱️</div><div class="num" id="todayTime">0m</div><div class="cap">Study today</div></div>
+      <div class="glass stat"><div class="ico">🎯</div><div class="num" id="todayQ">0</div><div class="cap">Questions</div></div>
+      <div class="glass stat"><div class="ico">✅</div><div class="num" id="todayAcc">–</div><div class="cap">Accuracy</div></div>
+    </div>
+
+    <div class="glass card">
+      <div class="card-title">Today's Targets <span class="edit" id="editTargets">Edit</span></div>
+      <div class="tbar">
+        <div class="tbar-top"><span class="name">⏱️ Study hours</span><span class="val" id="tbHrsTxt">0 / 7h</span></div>
+        <div class="track"><div class="fill" id="tbHrs" style="color:var(--purple);background:linear-gradient(90deg,#8b5cf6,#6366f1)"></div></div>
+      </div>
+      <div class="tbar">
+        <div class="tbar-top"><span class="name">🎯 Questions</span><span class="val" id="tbQTxt">0 / 150</span></div>
+        <div class="track"><div class="fill" id="tbQ" style="color:var(--blue);background:linear-gradient(90deg,#0ea5e9,#38bdf8)"></div></div>
+      </div>
+      <div class="tbar">
+        <div class="tbar-top"><span class="name">📚 Chapters touched</span><span class="val" id="tbChTxt">0 / 1</span></div>
+        <div class="track"><div class="fill" id="tbCh" style="color:var(--green);background:linear-gradient(90deg,#10b981,#34d399)"></div></div>
+      </div>
+    </div>
+
+    <div class="sec-label">Quick actions</div>
+    <div class="qa-row">
+      <div class="glass qa" data-go="timer"><div class="ico">▶️</div><div class="t">Start timer</div></div>
+      <div class="glass qa" data-go="questions"><div class="ico">🎯</div><div class="t">Log questions</div></div>
+      <div class="glass qa" data-go="syllabus"><div class="ico">📚</div><div class="t">Chapters</div></div>
+    </div>
+  </section>
+
+  <!-- ============ SYLLABUS ============ -->
+  <section class="page" id="page-syllabus">
+    <div class="hello">Syllabus Tracker</div>
+    <div class="date-line">Tap a status to update it. Set accuracy with − / +.</div>
+    <div class="chips" id="subjChips"></div>
+    <div class="glass card">
+      <div class="card-title" id="subjTitle">Physics</div>
+      <div class="progress-thin"><div class="fill" id="subjBar" style="color:var(--green);background:linear-gradient(90deg,#8b5cf6,#34d399)"></div></div>
+      <div style="font-size:11.5px;color:var(--dim)" id="subjMeta"></div>
+    </div>
+    <div id="chapterList"></div>
+  </section>
+
+  <!-- ============ TIMER ============ -->
+  <section class="page" id="page-timer">
+    <div class="hello">Study Timer</div>
+    <div class="date-line">Pick a subject, start, and finish to log your session.</div>
+    <div class="glass card">
+      <div class="chips" id="timerChips" style="justify-content:center;flex-wrap:wrap"></div>
+      <div class="timer-ring-wrap">
+        <svg width="230" height="230" viewBox="0 0 230 230">
+          <defs><linearGradient id="timerGrad" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0%" stop-color="#a78bfa"/><stop offset="100%" stop-color="#38bdf8"/>
+          </linearGradient></defs>
+          <circle class="t-ring-bg" cx="115" cy="115" r="98"/>
+          <circle class="t-ring-fg" id="timerRing" cx="115" cy="115" r="98" stroke-dasharray="615.75" stroke-dashoffset="615.75"/>
+        </svg>
+        <div class="timer-center">
+          <div class="timer-time" id="timerTime">00:00</div>
+          <div class="timer-sub" id="timerState">ready</div>
+          <div class="timer-subj" id="timerSubj">Physics</div>
+        </div>
+      </div>
+      <div class="timer-btns">
+        <button class="btn" id="btnStartPause">Start</button>
+        <button class="btn ghost" id="btnFinish">Finish & log</button>
+      </div>
+    </div>
+    <div class="glass card">
+      <div class="card-title">Recent sessions</div>
+      <div id="sessionList"><div class="empty">No sessions yet. Your logged study time appears here.</div></div>
+    </div>
+  </section>
+
+  <!-- ============ QUESTIONS ============ -->
+  <section class="page" id="page-questions">
+    <div class="hello">Question Tracker</div>
+    <div class="date-line">Log every practice set - PYQs, DPPs, mocks, practice.</div>
+    <div class="glass card">
+      <div class="field"><label>Subject</label><div class="chips" id="qSubjChips" style="flex-wrap:wrap"></div></div>
+      <div class="field"><label>Source</label><div class="chips" id="qTypeChips" style="flex-wrap:wrap"></div></div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+        <div class="field"><label>Attempted</label><input type="number" id="qTotal" min="1" max="500" placeholder="45" inputmode="numeric"></div>
+        <div class="field"><label>Correct</label><input type="number" id="qCorrect" min="0" max="500" placeholder="38" inputmode="numeric"></div>
+      </div>
+      <button class="btn" id="btnLogQ">Log questions</button>
+    </div>
+    <div class="glass card">
+      <div class="card-title">Today's log</div>
+      <div id="qLog"><div class="empty">Nothing logged today yet.</div></div>
+    </div>
+  </section>
+
+  <!-- ============ ANALYTICS ============ -->
+  <section class="page" id="page-analytics">
+    <div class="hello">Analytics</div>
+    <div class="date-line">Your week at a glance.</div>
+    <div class="glass card">
+      <div class="card-title">Study time - last 7 days</div>
+      <div class="bars" id="weekBars"></div>
+    </div>
+    <div class="stat-row">
+      <div class="glass stat"><div class="ico">📅</div><div class="num" id="weekHours">0h</div><div class="cap">This week</div></div>
+      <div class="glass stat"><div class="ico">🎯</div><div class="num" id="weekQ">0</div><div class="cap">Questions</div></div>
+      <div class="glass stat"><div class="ico">✅</div><div class="num" id="weekAcc">–</div><div class="cap">Accuracy</div></div>
+    </div>
+    <div class="glass card">
+      <div class="card-title">Subject progress</div>
+      <div id="subjBars"></div>
+    </div>
+    <div class="glass card">
+      <div class="card-title" style="color:var(--red)">⚠ Weak areas to revisit</div>
+      <div id="weakList"><div class="empty">No weak chapters flagged. Set accuracy on completed chapters to track them.</div></div>
+    </div>
+    <div class="glass card">
+      <div class="card-title">Backup</div>
+      <div style="display:flex;gap:10px">
+        <button class="btn ghost sm" style="flex:1" id="btnExport">⬇ Export data</button>
+        <button class="btn ghost sm" style="flex:1" id="btnImportBtn">⬆ Import</button>
+      </div>
+      <input type="file" id="importFile" accept=".json" style="display:none">
+    </div>
+  </section>
+</main>
+
+<nav>
+  <button class="nav-item on" data-page="home"><span class="ni">🏠</span>Home</button>
+  <button class="nav-item" data-page="syllabus"><span class="ni">📚</span>Syllabus</button>
+  <button class="nav-item" data-page="timer"><span class="ni">⏱️</span>Timer</button>
+  <button class="nav-item" data-page="questions"><span class="ni">🎯</span>Questions</button>
+  <button class="nav-item" data-page="analytics"><span class="ni">📊</span>Analytics</button>
+</nav>
+
+<div class="modal-bg" id="targetModal">
+  <div class="modal">
+    <h3>Daily targets</h3>
+    <div class="field"><label>Study hours</label><input type="number" id="tgtHours" min="1" max="16" inputmode="numeric"></div>
+    <div class="field"><label>Questions</label><input type="number" id="tgtQ" min="10" max="1000" inputmode="numeric"></div>
+    <div class="field"><label>Chapters</label><input type="number" id="tgtCh" min="1" max="10" inputmode="numeric"></div>
+    <button class="btn" id="btnSaveTargets">Save targets</button>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+window.onerror=function(m){document.title='NPT-ERR:'+m;};
+/* ---------------- data ---------------- */
+var SUBJECTS=["Physics","Chemistry","Botany","Zoology"];
+var QTYPES=["PYQ","DPP","Mock","Practice"];
+var CHAPTERS={
+Physics:["Units and Measurements","Motion in a Straight Line","Motion in a Plane","Laws of Motion","Work, Energy and Power","System of Particles and Rotational Motion","Gravitation","Mechanical Properties of Solids","Mechanical Properties of Fluids","Thermal Properties of Matter","Thermodynamics","Kinetic Theory","Oscillations","Waves","Electric Charges and Fields","Electrostatic Potential and Capacitance","Current Electricity","Moving Charges and Magnetism","Magnetism and Matter","Electromagnetic Induction","Alternating Current","Electromagnetic Waves","Ray Optics and Optical Instruments","Wave Optics","Dual Nature of Radiation and Matter","Atoms","Nuclei","Semiconductor Electronics"],
+Chemistry:["Some Basic Concepts of Chemistry","Structure of Atom","Chemical Bonding and Molecular Structure","Thermodynamics","Equilibrium","Redox Reactions","Solutions","Electrochemistry","Chemical Kinetics","Classification of Elements and Periodicity","The p-Block Elements","The d and f Block Elements","Coordination Compounds","Organic Chemistry: Basic Principles & Techniques","Hydrocarbons","Haloalkanes and Haloarenes","Alcohols, Phenols and Ethers","Aldehydes, Ketones and Carboxylic Acids","Amines","Biomolecules"],
+Botany:["The Living World","Biological Classification","Plant Kingdom","Morphology of Flowering Plants","Anatomy of Flowering Plants","Cell: The Unit of Life","Biomolecules","Cell Cycle and Cell Division","Photosynthesis in Higher Plants","Respiration in Plants","Plant Growth and Development","Sexual Reproduction in Flowering Plants","Principles of Inheritance and Variation","Molecular Basis of Inheritance","Biotechnology: Principles and Processes","Biotechnology and its Applications","Organisms and Populations","Ecosystem","Biodiversity and Conservation"],
+Zoology:["Animal Kingdom","Structural Organisation in Animals","Breathing and Exchange of Gases","Body Fluids and Circulation","Excretory Products and their Elimination","Locomotion and Movement","Neural Control and Coordination","Chemical Coordination and Integration","Human Reproduction","Reproductive Health","Evolution","Human Health and Disease"]};
+var STATUS_NAMES=["Not started","In progress","Done","Revision"];
+
+function todayStr(d){d=d||new Date();return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");}
+function load(){
+  var d=null;
+  try{d=JSON.parse(localStorage.getItem("npt_data_v1"));}catch(e){}
+  if(!d||!d.chapters){
+    d={chapters:{},sessions:[],questions:[],targets:{hours:7,questions:150,chapters:1}};
+    SUBJECTS.forEach(function(s){CHAPTERS[s].forEach(function(name,i){
+      d.chapters[s+"|"+name]={status:0,accuracy:null,lastTouched:null};
+    });});
+    save(d);
+  }
+  return d;
+}
+function save(d){localStorage.setItem("npt_data_v1",JSON.stringify(d));}
+var DB=load();
+
+/* ---------------- helpers ---------------- */
+function $(id){return document.getElementById(id);}
+function esc(s){return s.replace(/&/g,"&amp;").replace(/</g,"&lt;");}
+function fmtHM(mins){var h=Math.floor(mins/60),m=Math.round(mins%60);return h>0?h+"h "+(m>0?m+"m":""):m+"m";}
+function minsOn(dateStr){var t=0;DB.sessions.forEach(function(s){if(s.date===dateStr)t+=s.minutes;});return t;}
+function qsOn(dateStr){var t=0,c=0;DB.questions.forEach(function(q){if(q.date===dateStr){t+=q.total;c+=q.correct;}});return{total:t,correct:c};}
+function chaptersTouchedOn(dateStr){var n=0;for(var k in DB.chapters){if(DB.chapters[k].lastTouched===dateStr)n++;}return n;}
+function streakDays(){
+  var s=0,d=new Date();
+  if(minsOn(todayStr(d))===0&&qsOn(todayStr(d)).total===0)d.setDate(d.getDate()-1);
+  while(minsOn(todayStr(d))>0||qsOn(todayStr(d)).total>0){s++;d.setDate(d.getDate()-1);}
+  return s;
+}
+function toast(msg){var t=$("toast");t.textContent=msg;t.classList.add("show");clearTimeout(t._h);t._h=setTimeout(function(){t.classList.remove("show");},2200);}
+function subjectColor(s){return{Physics:"#38bdf8",Chemistry:"#fb923c",Botany:"#34d399",Zoology:"#a78bfa"}[s];}
+
+/* ---------------- navigation ---------------- */
+function goPage(p){
+  document.querySelectorAll(".page").forEach(function(x){x.classList.remove("active");});
+  $("page-"+p).classList.add("active");
+  document.querySelectorAll(".nav-item").forEach(function(x){x.classList.toggle("on",x.dataset.page===p);});
+  window.scrollTo({top:0});
+  if(p==="home")renderHome();
+  if(p==="syllabus")renderSyllabus();
+  if(p==="analytics")renderAnalytics();
+  if(p==="timer")renderSessions();
+  if(p==="questions")renderQLog();
+}
+document.querySelectorAll(".nav-item").forEach(function(b){b.addEventListener("click",function(){goPage(b.dataset.page);});});
+document.querySelectorAll(".qa").forEach(function(b){b.addEventListener("click",function(){goPage(b.dataset.go);});});
+
+/* ---------------- home ---------------- */
+function renderHome(){
+  var h=new Date().getHours();
+  var greet=h<5?"Late night grind":h<12?"Good morning":h<17?"Good afternoon":h<21?"Good evening":"Night mode on";
+  $("helloLine").textContent=greet+", Devion 👋";
+  $("dateLine").textContent=new Date().toLocaleDateString("en-IN",{weekday:"long",day:"numeric",month:"long",year:"numeric"});
+  var st=streakDays();$("streakNum").textContent=st;
+  var tot=0,done=0,prog=0,rev=0;
+  for(var k in DB.chapters){tot++;var s=DB.chapters[k].status;if(s===2)done++;else if(s===1)prog++;else if(s===3)rev++;}
+  var pct=tot?Math.round(((done+rev)/tot)*100):0;
+  $("overallPct").textContent=pct+"%";
+  $("overallRing").style.strokeDashoffset=(339.3*(1-pct/100)).toFixed(1);
+  $("hDone").textContent=done;$("hProg").textContent=prog;$("hRev").textContent=rev;$("hLeft").textContent=tot-done-rev;
+  var t=todayStr(),mins=minsOn(t),q=qsOn(t);
+  $("todayTime").textContent=fmtHM(mins);
+  $("todayQ").textContent=q.total;
+  $("todayAcc").textContent=q.total?Math.round(q.correct/q.total*100)+"%":"–";
+  var tg=DB.targets;
+  $("tbHrsTxt").textContent=(mins/60).toFixed(1)+" / "+tg.hours+"h";
+  $("tbHrs").style.width=Math.min(100,mins/60/tg.hours*100)+"%";
+  $("tbQTxt").textContent=q.total+" / "+tg.questions;
+  $("tbQ").style.width=Math.min(100,q.total/tg.questions*100)+"%";
+  var ch=chaptersTouchedOn(t);
+  $("tbChTxt").textContent=ch+" / "+tg.chapters;
+  $("tbCh").style.width=Math.min(100,ch/tg.chapters*100)+"%";
+}
+
+/* targets modal */
+$("editTargets").addEventListener("click",function(){
+  $("tgtHours").value=DB.targets.hours;$("tgtQ").value=DB.targets.questions;$("tgtCh").value=DB.targets.chapters;
+  $("targetModal").classList.add("open");
+});
+$("btnSaveTargets").addEventListener("click",function(){
+  DB.targets={hours:Math.max(1,+$("tgtHours").value||7),questions:Math.max(10,+$("tgtQ").value||150),chapters:Math.max(1,+$("tgtCh").value||1)};
+  save(DB);$("targetModal").classList.remove("open");renderHome();toast("Targets updated");
+});
+$("targetModal").addEventListener("click",function(e){if(e.target===this)this.classList.remove("open");});
+
+/* ---------------- syllabus ---------------- */
+var curSubj="Physics";
+function renderSyllabus(){
+  var chips=$("subjChips");chips.innerHTML="";
+  SUBJECTS.forEach(function(s){
+    var c=document.createElement("div");c.className="chip"+(s===curSubj?" on":"");c.textContent=s;
+    c.addEventListener("click",function(){curSubj=s;renderSyllabus();});
+    chips.appendChild(c);
+  });
+  $("subjTitle").textContent=curSubj;
+  var list=CHAPTERS[curSubj],done=0,prog=0;
+  list.forEach(function(n){var st=DB.chapters[curSubj+"|"+n].status;if(st>=2)done++;else if(st===1)prog++;});
+  $("subjBar").style.width=(done/list.length*100)+"%";
+  $("subjMeta").textContent=done+" of "+list.length+" chapters completed"+(prog?" · "+prog+" in progress":"");
+  var box=$("chapterList");box.innerHTML="";
+  list.forEach(function(name,i){
+    var key=curSubj+"|"+name,ch=DB.chapters[key];
+    var row=document.createElement("div");row.className="glass ch-row";
+    var accHtml=ch.status>=1?'<div class="acc-step"><button data-a="-1">−</button><span class="av">'+(ch.accuracy===null?"–":ch.accuracy+"%")+'</span><button data-a="1">+</button></div>':"";
+    row.innerHTML='<div class="nm">'+esc(name)+'<div class="sub2">Chapter '+(i+1)+'</div></div>'+accHtml+'<div class="status-pill st'+ch.status+'">'+STATUS_NAMES[ch.status]+'</div>';
+    row.querySelector(".status-pill").addEventListener("click",function(){
+      ch.status=(ch.status+1)%4;ch.lastTouched=todayStr();
+      if(ch.status===0)ch.accuracy=null;
+      save(DB);renderSyllabus();renderHome();
+    });
+    row.querySelectorAll(".acc-step button").forEach(function(b){
+      b.addEventListener("click",function(){
+        var a=ch.accuracy===null?50:ch.accuracy;
+        a=Math.max(0,Math.min(100,a+(+b.dataset.a)*5));
+        ch.accuracy=a;ch.lastTouched=todayStr();save(DB);renderSyllabus();
+      });
+    });
+    box.appendChild(row);
+  });
+}
+
+/* ---------------- timer ---------------- */
+var timer={subject:"Physics",running:false,elapsed:0,startAt:null,iv:null};
+try{var ts=JSON.parse(localStorage.getItem("npt_timer"));if(ts&&ts.running){timer.subject=ts.subject;timer.elapsed=ts.elapsed+(Date.now()-ts.startAt)/1000;timer.startAt=Date.now();timer.running=true;}}catch(e){}
+function renderTimerChips(){
+  var box=$("timerChips");box.innerHTML="";
+  SUBJECTS.forEach(function(s){
+    var c=document.createElement("div");c.className="chip"+(s===timer.subject?" on":"");c.textContent=s;
+    c.addEventListener("click",function(){if(!timer.running){timer.subject=s;$("timerSubj").textContent=s;renderTimerChips();}else toast("Pause the timer to switch subject");});
+    box.appendChild(c);
+  });
+}
+function drawTimer(){
+  var e=timer.elapsed+(timer.running?(Date.now()-timer.startAt)/1000:0);
+  var h=Math.floor(e/3600),m=Math.floor(e%3600/60),s=Math.floor(e%60);
+  $("timerTime").textContent=(h>0?String(h).padStart(2,"0")+":":"")+String(m).padStart(2,"0")+":"+String(s).padStart(2,"0");
+  $("timerRing").style.strokeDashoffset=(615.75*(1-(e%3600)/3600)).toFixed(1);
+}
+function persistTimer(){localStorage.setItem("npt_timer",JSON.stringify({subject:timer.subject,running:timer.running,elapsed:timer.elapsed,startAt:timer.startAt}));}
+$("btnStartPause").addEventListener("click",function(){
+  if(!timer.running){timer.running=true;timer.startAt=Date.now();$("btnStartPause").textContent="Pause";$("timerState").textContent="focus mode";}
+  else{timer.elapsed+=(Date.now()-timer.startAt)/1000;timer.running=false;$("btnStartPause").textContent="Resume";$("timerState").textContent="paused";}
+  persistTimer();
+  clearInterval(timer.iv);if(timer.running)timer.iv=setInterval(drawTimer,500);
+});
+$("btnFinish").addEventListener("click",function(){
+  var e=timer.elapsed+(timer.running?(Date.now()-timer.startAt)/1000:0);
+  if(e<60){toast("Session under 1 minute - not logged");return;}
+  timer.running=false;clearInterval(timer.iv);
+  DB.sessions.push({date:todayStr(),subject:timer.subject,minutes:Math.round(e/60),ts:Date.now()});
+  save(DB);
+  timer.elapsed=0;localStorage.removeItem("npt_timer");
+  $("btnStartPause").textContent="Start";$("timerState").textContent="ready";drawTimer();
+  renderSessions();renderHome();toast("Logged "+fmtHM(e/60)+" of "+timer.subject+" 🔥");
+});
+function renderSessions(){
+  var box=$("sessionList");
+  var recent=DB.sessions.slice(-6).reverse();
+  if(!recent.length){box.innerHTML='<div class="empty">No sessions yet. Your logged study time appears here.</div>';return;}
+  box.innerHTML=recent.map(function(s){
+    var d=new Date(s.ts);var lbl=s.date===todayStr()?"Today":d.toLocaleDateString("en-IN",{day:"numeric",month:"short"});
+    return '<div class="sess-row"><span><b>'+esc(s.subject)+'</b> · '+lbl+'</span><b>'+fmtHM(s.minutes)+'</b></div>';
+  }).join("");
+}
+/* ---------------- questions ---------------- */
+var qSubj="Physics",qType="PYQ";
+function renderQChips(){
+  var b1=$("qSubjChips");b1.innerHTML="";
+  SUBJECTS.forEach(function(s){var c=document.createElement("div");c.className="chip"+(s===qSubj?" on":"");c.textContent=s;c.addEventListener("click",function(){qSubj=s;renderQChips();});b1.appendChild(c);});
+  var b2=$("qTypeChips");b2.innerHTML="";
+  QTYPES.forEach(function(t){var c=document.createElement("div");c.className="chip"+(t===qType?" on":"");c.textContent=t;c.addEventListener("click",function(){qType=t;renderQChips();});b2.appendChild(c);});
+}
+$("btnLogQ").addEventListener("click",function(){
+  var t=+$("qTotal").value,c=+$("qCorrect").value;
+  if(!t||t<1){toast("Enter questions attempted");return;}
+  if(isNaN(c)||c<0||c>t){toast("Correct must be between 0 and attempted");return;}
+  DB.questions.push({date:todayStr(),subject:qSubj,type:qType,total:t,correct:c,ts:Date.now()});
+  save(DB);$("qTotal").value="";$("qCorrect").value="";
+  renderQLog();renderHome();toast("Logged "+t+" "+qType+" questions 🎯");
+});
+function renderQLog(){
+  var box=$("qLog");
+  var today=DB.questions.filter(function(q){return q.date===todayStr();}).reverse();
+  if(!today.length){box.innerHTML='<div class="empty">Nothing logged today yet.</div>';return;}
+  box.innerHTML=today.map(function(q){
+    var acc=Math.round(q.correct/q.total*100);
+    var col=acc>=70?"var(--green)":acc>=45?"var(--yellow)":"var(--red)";
+    return '<div class="sess-row"><span><b>'+esc(q.subject)+'</b> · '+esc(q.type)+'</span><span><b>'+q.correct+"/"+q.total+'</b> <span style="color:'+col+';font-weight:700">'+acc+'%</span></span></div>';
+  }).join("");
+}
+/* ---------------- analytics ---------------- */
+function renderAnalytics(){
+  var days=[],i,d,ds;
+  for(i=6;i>=0;i--){d=new Date();d.setDate(d.getDate()-i);days.push(d);}
+  var max=1,vals=days.map(function(d){var v=minsOn(todayStr(d));if(v>max)max=v;return v;});
+  var weekMin=0,weekT=0,weekC=0;
+  days.forEach(function(d){weekMin+=minsOn(todayStr(d));var q=qsOn(todayStr(d));weekT+=q.total;weekC+=q.correct;});
+  $("weekBars").innerHTML=days.map(function(d,i){
+    var h=Math.max(4,vals[i]/max*100);
+    var today=d.toDateString()===new Date().toDateString();
+    return '<div class="bar-col"><span class="bar-h">'+(vals[i]?fmtHM(vals[i]):"")+'</span><div class="bar'+(today?" today":"")+'" style="height:'+h+'%"></div><span class="bar-day">'+d.toLocaleDateString("en-IN",{weekday:"short"})[0]+'</span></div>';
+  }).join("");
+  $("weekHours").textContent=fmtHM(weekMin);
+  $("weekQ").textContent=weekT;
+  $("weekAcc").textContent=weekT?Math.round(weekC/weekT*100)+"%":"–";
+  var sb=$("subjBars");sb.innerHTML="";
+  SUBJECTS.forEach(function(s){
+    var list=CHAPTERS[s],done=0;
+    list.forEach(function(n){if(DB.chapters[s+"|"+n].status>=2)done++;});
+    var p=Math.round(done/list.length*100);
+    sb.innerHTML+='<div class="sbar"><div class="sbar-top"><span>'+s+'</span><span style="color:var(--dim)">'+done+'/'+list.length+' · '+p+'%</span></div><div class="track"><div class="fill" style="width:'+p+'%;color:'+subjectColor(s)+';background:'+subjectColor(s)+'"></div></div></div>';
+  });
+  var weak=[];
+  for(var k in DB.chapters){var c=DB.chapters[k];if(c.status>=1&&c.accuracy!==null&&c.accuracy<60)weak.push({name:k.split("|")[1],subj:k.split("|")[0],acc:c.accuracy});}
+  weak.sort(function(a,b){return a.acc-b.acc;});
+  var wl=$("weakList");
+  if(!weak.length){wl.innerHTML='<div class="empty">No weak chapters flagged. Set accuracy on chapters to track them.</div>';}
+  else wl.innerHTML=weak.slice(0,8).map(function(w){return '<div class="weak-row"><span>'+esc(w.name)+' <span style="color:var(--dim2);font-size:10.5px">· '+w.subj+'</span></span><span class="pct">'+w.acc+'%</span></div>';}).join("");
+}
+/* ---------------- backup ---------------- */
+$("btnExport").addEventListener("click",function(){
+  var blob=new Blob([JSON.stringify(DB,null,1)],{type:"application/json"});
+  var a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download="npt-backup-"+todayStr()+".json";a.click();
+  toast("Backup exported");
+});
+$("btnImportBtn").addEventListener("click",function(){$("importFile").click();});
+$("importFile").addEventListener("change",function(e){
+  var f=e.target.files[0];if(!f)return;
+  var r=new FileReader();
+  r.onload=function(){try{var d=JSON.parse(r.result);if(d&&d.chapters){DB=d;save(DB);renderHome();renderAnalytics();toast("Backup restored ✅");}else toast("Invalid backup file");}catch(err){toast("Invalid backup file");}};
+  r.readAsText(f);
+});
+/* ---------------- init ---------------- */
+$("timerSubj").textContent=timer.subject;
+renderTimerChips();renderQChips();
+if(timer.running){$("btnStartPause").textContent="Pause";$("timerState").textContent="focus mode";timer.iv=setInterval(drawTimer,500);}
+drawTimer();
+var startTab=new URLSearchParams(location.search).get("tab")||"home";
+goPage(startTab);
+if("serviceWorker" in navigator){window.addEventListener("load",function(){navigator.serviceWorker.register("sw.js").catch(function(){});});}
+</script>
+</body>
+</html>
