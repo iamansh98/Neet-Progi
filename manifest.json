@@ -1,0 +1,16 @@
+{
+  "name": "NPT - NEET Progress Tracker",
+  "short_name": "NPT",
+  "description": "NEET study tracker: syllabus, timer, questions, mocks and analytics. All data stays on your phone.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#070810",
+  "theme_color": "#070810",
+  "icons": [
+    { "src": "icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}
