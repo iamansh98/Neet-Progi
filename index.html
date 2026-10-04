@@ -104,8 +104,12 @@ main{position:relative;z-index:1;padding:6px 16px 110px}
   background:rgba(255,255,255,.05);border:1px solid var(--border);cursor:pointer;transition:all .2s}
 .chip.on{color:#fff;background:var(--grad);border-color:transparent;box-shadow:0 4px 18px rgba(124,58,237,.4)}
 /* chapter rows */
-.ch-row{display:flex;align-items:center;gap:12px;padding:13px 14px;margin-bottom:9px;border-radius:16px}
+.ch-row{flex-wrap:wrap;display:flex;align-items:center;gap:12px;padding:13px 14px;margin-bottom:9px;border-radius:16px}
 .ch-row .nm{flex:1;font-size:13.5px;font-weight:600;line-height:1.35}
+.ck-row{flex-basis:100%;display:flex;gap:8px;flex-wrap:wrap;padding-top:2px}
+.ck{padding:7px 12px;border-radius:99px;font-size:11.5px;font-weight:700;border:1px solid var(--border);background:rgba(255,255,255,.05);color:var(--dim);cursor:pointer;font-family:inherit}
+.ck.on{background:rgba(52,211,153,.15);border-color:rgba(52,211,153,.5);color:var(--green)}
+.ck.due{background:rgba(251,146,60,.14);border-color:rgba(251,146,60,.55);color:var(--orange)}
 .ch-row .sub2{font-size:10.5px;color:var(--dim2);margin-top:2px}
 .status-pill{flex:none;font-size:10px;font-weight:700;letter-spacing:.6px;text-transform:uppercase;padding:6px 11px;border-radius:999px;cursor:pointer;transition:transform .12s;user-select:none}
 .status-pill:active{transform:scale(.9)}
@@ -305,6 +309,7 @@ nav{position:fixed;bottom:0;left:0;right:0;z-index:10;max-width:480px;margin:0 a
       <div class="glass stat"><div class="ico">✅</div><div class="num" id="todayAcc">–</div><div class="cap">Accuracy</div></div>
     </div>
 
+    <div id="homeRevDue"></div>
     <div class="glass card">
       <div class="card-title">Today's Targets <span class="edit" id="editTargets">Edit</span></div>
       <div class="tbar">
@@ -337,13 +342,14 @@ nav{position:fixed;bottom:0;left:0;right:0;z-index:10;max-width:480px;margin:0 a
   <!-- ============ SYLLABUS ============ -->
   <section class="page" id="page-syllabus">
     <div class="hello">Syllabus Tracker</div>
-    <div class="date-line">Tap a status to update it. Set accuracy with − / +.</div>
+    <div class="date-line">Tap a status to update it. Tick Lec / DPP / Revision for each chapter.</div>
     <div class="chips" id="subjChips"></div>
     <div class="glass card">
       <div class="card-title" id="subjTitle">Physics</div>
       <div class="progress-thin"><div class="fill" id="subjBar" style="color:var(--green);background:linear-gradient(90deg,#8b5cf6,#34d399)"></div></div>
       <div style="font-size:11.5px;color:var(--dim)" id="subjMeta"></div>
     </div>
+    <div id="revDue"></div>
     <div id="chapterList"></div>
   </section>
 
@@ -395,6 +401,10 @@ nav{position:fixed;bottom:0;left:0;right:0;z-index:10;max-width:480px;margin:0 a
       <div class="card-title">Today's log</div>
       <div id="qLog"><div class="empty">Nothing logged today yet.</div></div>
     </div>
+    <div class="sec-label">📘 DPP practice · chapter-wise</div>
+    <div id="dppResume"></div>
+    <button class="btn" id="dppImpBtn">＋ Import a DPP</button>
+    <div id="dppList" style="margin-top:6px"></div>
   </section>
 
   <!-- ============ ANALYTICS ============ -->
@@ -448,6 +458,7 @@ nav{position:fixed;bottom:0;left:0;right:0;z-index:10;max-width:480px;margin:0 a
     <div id="mockAnalysis" style="display:none"></div>
     <div id="mockReview" style="display:none"></div>
     <div id="mockImport" style="display:none"></div>
+    <div id="dppDetail" style="display:none"></div>
   </section>
 </main>
 
@@ -515,6 +526,13 @@ Chemistry:["Some Basic Concepts of Chemistry","Structure of Atom","Chemical Bond
 Botany:["The Living World","Biological Classification","Plant Kingdom","Morphology of Flowering Plants","Anatomy of Flowering Plants","Cell: The Unit of Life","Biomolecules","Cell Cycle and Cell Division","Photosynthesis in Higher Plants","Respiration in Plants","Plant Growth and Development","Sexual Reproduction in Flowering Plants","Principles of Inheritance and Variation","Molecular Basis of Inheritance","Biotechnology: Principles and Processes","Biotechnology and its Applications","Organisms and Populations","Ecosystem","Biodiversity and Conservation"],
 Zoology:["Animal Kingdom","Structural Organisation in Animals","Breathing and Exchange of Gases","Body Fluids and Circulation","Excretory Products and their Elimination","Locomotion and Movement","Neural Control and Coordination","Chemical Coordination and Integration","Human Reproduction","Reproductive Health","Evolution","Human Health and Disease"]};
 var STATUS_NAMES=["Not started","In progress","Done","Revision"];
+/* 6 study buckets: Chemistry is split into Physical / Inorganic / Organic (same saved data keys as before) */
+var BUCKETS=[{n:"Botany",s:"Botany"},{n:"Zoology",s:"Zoology"},{n:"Physical",s:"Chemistry",f:"Physical"},{n:"Inorganic",s:"Chemistry",f:"Inorganic"},{n:"Organic",s:"Chemistry",f:"Organic"},{n:"Physics",s:"Physics"}];
+var CHEM_BUCKET={"Some Basic Concepts of Chemistry":"Physical","Structure of Atom":"Physical","Thermodynamics":"Physical","Equilibrium":"Physical","Redox Reactions":"Physical","Solutions":"Physical","Electrochemistry":"Physical","Chemical Kinetics":"Physical",
+"Chemical Bonding and Molecular Structure":"Inorganic","Classification of Elements and Periodicity":"Inorganic","The p-Block Elements":"Inorganic","The d and f Block Elements":"Inorganic","Coordination Compounds":"Inorganic",
+"Organic Chemistry: Basic Principles & Techniques":"Organic","Hydrocarbons":"Organic","Haloalkanes and Haloarenes":"Organic","Alcohols, Phenols and Ethers":"Organic","Aldehydes, Ketones and Carboxylic Acids":"Organic","Amines":"Organic","Biomolecules":"Organic"};
+function bucketByName(n){for(var i=0;i<BUCKETS.length;i++)if(BUCKETS[i].n===n)return BUCKETS[i];return BUCKETS[5];}
+function bucketOfTest(t){if(t.bucket)return t.bucket;if(t.subject==="Chemistry")return CHEM_BUCKET[t.chapter]||"Physical";return t.subject||"Physics";}
 
 function todayStr(d){d=d||new Date();return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");}
 function load(){
@@ -561,6 +579,7 @@ function goPage(p){
   if(p==="questions")renderQLog();
   if(p==="mock")renderMockHome();
   if(p==="home")renderMockCard();
+  if(p==="home"||p==="syllabus")renderRevDue();
   if(p==="analytics")renderMockTrend();
 }
 document.querySelectorAll(".nav-item").forEach(function(b){b.addEventListener("click",function(){goPage(b.dataset.page);});});
@@ -605,16 +624,16 @@ $("btnSaveTargets").addEventListener("click",function(){
 $("targetModal").addEventListener("click",function(e){if(e.target===this)this.classList.remove("open");});
 
 /* ---------------- syllabus ---------------- */
-var curSubj="Physics";
+var curSubj="Physics",curBucket="Physics";
 function renderSyllabus(){
   var chips=$("subjChips");chips.innerHTML="";
-  SUBJECTS.forEach(function(s){
-    var c=document.createElement("div");c.className="chip"+(s===curSubj?" on":"");c.textContent=s;
-    c.addEventListener("click",function(){curSubj=s;renderSyllabus();});
+  BUCKETS.forEach(function(b){
+    var c=document.createElement("div");c.className="chip"+(b.n===curBucket?" on":"");c.textContent=b.n;
+    c.addEventListener("click",function(){curSubj=b.s;curBucket=b.n;renderSyllabus();});
     chips.appendChild(c);
   });
-  $("subjTitle").textContent=curSubj;
-  var list=CHAPTERS[curSubj],done=0,prog=0;
+  $("subjTitle").textContent=curBucket+(curSubj==="Chemistry"?" Chemistry":"");
+  var list=CHAPTERS[curSubj].filter(function(n){return curSubj!=="Chemistry"||CHEM_BUCKET[n]===curBucket;}),done=0,prog=0;
   list.forEach(function(n){var st=DB.chapters[curSubj+"|"+n].status;if(st>=2)done++;else if(st===1)prog++;});
   $("subjBar").style.width=(done/list.length*100)+"%";
   $("subjMeta").textContent=done+" of "+list.length+" chapters completed"+(prog?" · "+prog+" in progress":"");
@@ -636,6 +655,20 @@ function renderSyllabus(){
         ch.accuracy=a;ch.lastTouched=todayStr();save(DB);renderSyllabus();
       });
     });
+    var ck=document.createElement("div");ck.className="ck-row";
+    var D3=3*86400000,left=ch.rev&&ch.revAt?Math.max(1,Math.ceil((ch.revAt+D3-Date.now())/86400000)):0;
+    [["lec","Lec"],["dpp","DPP"],["rev","Revision"]].forEach(function(f){
+      var b=document.createElement("button"),k=f[0],on=!!ch[k],due=k==="rev"&&!ch.rev&&ch.revDue;
+      b.className="ck"+(on?" on":"")+(due?" due":"");
+      b.textContent=due?"⏰ Revise now":(on?"✓ ":"○ ")+f[1]+(k==="rev"&&on?" · "+left+"d":"");
+      b.addEventListener("click",function(){
+        ch[k]=!ch[k];ch.lastTouched=todayStr();
+        if(k==="rev"){if(ch.rev){ch.revAt=Date.now();ch.revDue=false;}else{ch.revAt=null;ch.revDue=false;}}
+        save(DB);renderSyllabus();renderRevDue();
+      });
+      ck.appendChild(b);
+    });
+    row.appendChild(ck);
     box.appendChild(row);
   });
 }
@@ -700,6 +733,7 @@ $("btnLogQ").addEventListener("click",function(){
   renderQLog();renderHome();toast("Logged "+t+" "+qType+" questions 🎯");
 });
 function renderQLog(){
+  try{renderDppCard();}catch(e){}
   var box=$("qLog");
   var today=DB.questions.filter(function(q){return q.date===todayStr();}).reverse();
   if(!today.length){box.innerHTML='<div class="empty">Nothing logged today yet.</div>';return;}
@@ -740,7 +774,7 @@ function renderAnalytics(){
 }
 /* ---------------- backup ---------------- */
 $("btnExport").addEventListener("click",function(){
-  var blob=new Blob([JSON.stringify(Object.assign({},DB,{mocks:MOCKS.attempts,customTests:CUSTOM}),null,1)],{type:"application/json"});
+  var blob=new Blob([JSON.stringify(Object.assign({},DB,{mocks:MOCKS.attempts,customTests:CUSTOM,dppAttempts:DPPA.attempts}),null,1)],{type:"application/json"});
   var a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download="npt-backup-"+todayStr()+".json";a.click();
   toast("Backup exported");
 });
@@ -748,7 +782,7 @@ $("btnImportBtn").addEventListener("click",function(){$("importFile").click();})
 $("importFile").addEventListener("change",function(e){
   var f=e.target.files[0];if(!f)return;
   var r=new FileReader();
-  r.onload=function(){try{var d=JSON.parse(r.result);if(d&&d.chapters){var mk=d.mocks,ct=d.customTests;delete d.mocks;delete d.customTests;if(ct&&ct.length){CUSTOM=ct;saveCustom();ct.forEach(function(t){if(!getTest(t.id))NPT_TESTS.push(t);});}DB=d;save(DB);if(mk&&mk.length){MOCKS.attempts=mk;saveMocks();}renderHome();renderAnalytics();toast("Backup restored ✅");}else toast("Invalid backup file");}catch(err){toast("Invalid backup file");}};
+  r.onload=function(){try{var d=JSON.parse(r.result);if(d&&d.chapters){var mk=d.mocks,ct=d.customTests,dpa=d.dppAttempts;delete d.mocks;delete d.customTests;delete d.dppAttempts;if(ct&&ct.length){CUSTOM=ct;saveCustom();ct.forEach(function(t){if(!getTest(t.id))NPT_TESTS.push(t);});}DB=d;save(DB);if(mk&&mk.length){MOCKS.attempts=mk;saveMocks();}if(dpa&&dpa.length){DPPA.attempts=dpa;saveDppA();}renderHome();renderAnalytics();toast("Backup restored ✅");}else toast("Invalid backup file");}catch(err){toast("Invalid backup file");}};
   r.readAsText(f);
 });
 /* ---------------- MOCK TESTS ----------------
@@ -757,10 +791,22 @@ $("importFile").addEventListener("change",function(e){
 function loadMocks(){try{var m=JSON.parse(localStorage.getItem("npt_mocks_v1"));if(m&&m.attempts)return m;}catch(e){}return{attempts:[]};}
 var MOCKS=loadMocks();
 function saveMocks(){localStorage.setItem("npt_mocks_v1",JSON.stringify(MOCKS));}
-function getTest(id){for(var i=0;i<NPT_TESTS.length;i++)if(NPT_TESTS[i].id===id)return NPT_TESTS[i];return null;}
+var WCACHE={};
+function getTest(id){for(var i=0;i<NPT_TESTS.length;i++)if(NPT_TESTS[i].id===id)return NPT_TESTS[i];
+  if(typeof id==="string"&&id.indexOf("w~")===0){
+    if(WCACHE[id])return WCACHE[id];
+    var pr=id.split("~"),p=getTest(pr[1]);if(!p)return null;
+    var ix=pr[2].split(",").map(Number).filter(function(i){return p.qs[i];});if(!ix.length)return null;
+    return WCACHE[id]={id:id,dpp:1,wrong:1,pid:p.id,qmap:ix,name:p.name+" · revision",desc:"",duration:Math.max(1,Math.round(ix.length*1.5)),attempt:ix.length,subject:p.subject,chapter:p.chapter,sections:p.sections,qs:ix.map(function(i){return p.qs[i];})};
+  }
+  return null;}
+function loadDppA(){try{var m=JSON.parse(localStorage.getItem("npt_dpp_attempts_v1"));if(m&&m.attempts)return m;}catch(e){}return{attempts:[]};}
+var DPPA=loadDppA();
+function saveDppA(){localStorage.setItem("npt_dpp_attempts_v1",JSON.stringify(DPPA));}
+var IMPDPP=0;
 function mmss(s){s=Math.max(0,Math.round(s));var m=Math.floor(s/60);return m+":"+String(s%60).padStart(2,"0");}
 function fmtDur(s){s=Math.round(s);if(s<60)return s+"s";return Math.floor(s/60)+"m "+(s%60)+"s";}
-function mockShow(which){["mockHome","mockAnalysis","mockReview","mockImport"].forEach(function(x){$(x).style.display=x===which?"block":"none";});window.scrollTo({top:0});}
+function mockShow(which){["mockHome","mockAnalysis","mockReview","mockImport","dppDetail"].forEach(function(x){$(x).style.display=x===which?"block":"none";});window.scrollTo({top:0});}
 function testMax(t){return (t.attempt||t.qs.length)*4;}
 function bestOf(tid){var b=null;MOCKS.attempts.forEach(function(a){if(a.tid===tid&&(b===null||a.score>b))b=a.score;});return b;}
 
@@ -770,12 +816,13 @@ function renderMockHome(){
   if(run&&getTest(run.tid)){
     var t=getTest(run.tid),left=Math.max(0,(run.endAt-Date.now())/1000);
     var c=document.createElement("div");c.className="glass card m-resume";
-    c.innerHTML='<div class="card-title" style="color:var(--orange);margin-bottom:8px">⏳ Test in progress</div><div style="font-size:14px;font-weight:700;margin-bottom:4px">'+esc(t.name)+'</div><div style="font-size:12px;color:var(--dim);margin-bottom:12px">'+(left>0?mmss(left)+' left · timer keeps running':'Time is up - submit to see your analysis')+'</div><button class="btn sm">'+(left>0?'Resume test':'See my result')+'</button>';
+    c.innerHTML='<div class="card-title" style="color:var(--orange);margin-bottom:8px">⏳ Test in progress</div><div style="font-size:14px;font-weight:700;margin-bottom:4px">'+esc(t.name)+'</div><div style="font-size:12px;color:var(--dim);margin-bottom:12px">'+(run.untimed?'Untimed · your answers are saved':left>0?mmss(left)+' left · timer keeps running':'Time is up - submit to see your analysis')+'</div><button class="btn sm">'+(left>0||run.untimed?'Resume test':'See my result')+'</button>';
     c.querySelector("button").addEventListener("click",function(){openRun();});
     rb.appendChild(c);
   }
   var L=$("mockList");L.innerHTML="";
   NPT_TESTS.forEach(function(t){
+    if(t.dpp)return;
     var best=bestOf(t.id),n=0;MOCKS.attempts.forEach(function(a){if(a.tid===t.id)n++;});
     var d=document.createElement("div");d.className="glass m-test";
     d.innerHTML='<div class="tt">'+esc(t.name)+'</div><div class="ds">'+esc(t.desc||"")+'</div>'+
@@ -809,11 +856,12 @@ var RUN=null,runIv=null;
 function getRun(){if(RUN)return RUN;try{var r=JSON.parse(localStorage.getItem("npt_mock_run"));if(r&&r.tid){RUN=r;return r;}}catch(e){}return null;}
 function saveRun(){if(RUN)localStorage.setItem("npt_mock_run",JSON.stringify(RUN));}
 function clearRun(){RUN=null;localStorage.removeItem("npt_mock_run");}
-function startTest(id){
+function startTest(id,mode){
+  var tt=getTest(id);if(tt&&tt.dpp&&!mode){return dppModeSheet(id);}
   var old=getRun();
   if(old&&getTest(old.tid)&&!confirm("A test is already in progress. Discard it and start a new one?"))return;
   var t=getTest(id),n=t.qs.length;
-  RUN={tid:id,ans:new Array(n).fill(-1),mark:new Array(n).fill(0),seen:new Array(n).fill(0),times:new Array(n).fill(0),cur:0,startedAt:Date.now(),endAt:Date.now()+t.duration*60000,qStart:Date.now()};
+  RUN={tid:id,ans:new Array(n).fill(-1),mark:new Array(n).fill(0),seen:new Array(n).fill(0),times:new Array(n).fill(0),cur:0,startedAt:Date.now(),endAt:Date.now()+(mode==="u"?7*86400000:t.duration*60000),untimed:mode==="u"?1:0,qStart:Date.now()};
   RUN.seen[0]=1;saveRun();openRun();
 }
 function nAnswered(){var c=0;RUN.ans.forEach(function(x){if(x>=0)c++;});return c;}
@@ -829,7 +877,7 @@ function openRun(){
 }
 function closeRunUI(){$("mockRun").classList.remove("open");document.body.style.overflow="";clearInterval(runIv);}
 function drawClock(){
-  if(!RUN)return;var left=(RUN.endAt-Date.now())/1000,c=$("mrClock");
+  if(!RUN)return;var left=(RUN.endAt-Date.now())/1000,c=$("mrClock");if(RUN.untimed){c.textContent="⏱ "+mmss((Date.now()-RUN.startedAt)/1000);c.classList.remove("low");return;}
   c.textContent=mmss(left);c.classList.toggle("low",left<300);
   if(left<=0){bumpTime();doSubmit(true);}
 }
@@ -838,8 +886,9 @@ function drawRun(){
   var cap=t.attempt||t.qs.length,na=nAnswered();
   $("mrCount").textContent="Q "+(i+1)+" / "+t.qs.length+" · answered "+na+(cap<t.qs.length?" / "+cap:"");
   var ch=$("mrChips");ch.innerHTML="";
+  ch.style.display=t.sections.length>1?"flex":"none";
   t.sections.forEach(function(s,si){
-    var c=document.createElement("div");c.className="chip"+(q.s===si?" on":"");c.textContent=s.replace(/^Section /,"").split(" · ")[0]+" · "+s.split(" · ")[1].split(" ")[0];
+    var c=document.createElement("div");c.className="chip"+(q.s===si?" on":"");var sp=s.replace(/^Section /,"").split(" · ");c.textContent=sp[0]+(sp[1]?" · "+sp[1].split(" ")[0]:"");
     c.addEventListener("click",function(){for(var k=0;k<t.qs.length;k++)if(t.qs[k].s===si){goQ(k);break;}});
     ch.appendChild(c);
   });
@@ -866,7 +915,7 @@ $("mrPrev").addEventListener("click",function(){if(RUN.cur>0)goQ(RUN.cur-1);});
 $("mrNext").addEventListener("click",function(){var t=getTest(RUN.tid);if(RUN.cur<t.qs.length-1)goQ(RUN.cur+1);else openPalette();});
 $("mrClear").addEventListener("click",function(){RUN.ans[RUN.cur]=-1;saveRun();drawRun();});
 $("mrMark").addEventListener("click",function(){RUN.mark[RUN.cur]=RUN.mark[RUN.cur]?0:1;saveRun();drawRun();});
-$("mrExit").addEventListener("click",function(){bumpTime();saveRun();closeRunUI();goPage("mock");toast("Test saved - timer keeps running");});
+$("mrExit").addEventListener("click",function(){bumpTime();saveRun();var _t=getTest(RUN.tid);closeRunUI();if(_t&&_t.dpp)dppDetail(_t.pid||_t.id);else goPage("mock");toast(RUN.untimed?"Saved - resume anytime":"Test saved - timer keeps running");});
 $("mrPal").addEventListener("click",openPalette);
 $("mrSubmit").addEventListener("click",confirmSubmit);
 function sheet(html){$("mockSheetIn").innerHTML=html;$("mockSheet").classList.add("open");}
@@ -889,7 +938,7 @@ function openPalette(){
 function confirmSubmit(){
   bumpTime();var t=getTest(RUN.tid),na=nAnswered(),cap=t.attempt||t.qs.length,mk=0;RUN.mark.forEach(function(x){if(x)mk++;});
   var left=Math.max(0,(RUN.endAt-Date.now())/1000);
-  sheet('<h3>Submit test?</h3><div class="mo-ins">Answered: <b>'+na+'</b>'+(cap<t.qs.length?' of '+cap+' allowed':' of '+t.qs.length)+'<br>Not answered: <b>'+(t.qs.length-na)+'</b><br>Marked for review: <b>'+mk+'</b><br>Time left: <b>'+mmss(left)+'</b></div>'+(na<cap?'<div style="font-size:12px;color:var(--orange);margin-bottom:12px">You can still answer '+(cap-na)+' more.</div>':'')+'<button class="btn" id="subYes">Yes, submit</button><div class="linkish" id="subNo">Keep going</div>');
+  sheet('<h3>Submit test?</h3><div class="mo-ins">Answered: <b>'+na+'</b>'+(cap<t.qs.length?' of '+cap+' allowed':' of '+t.qs.length)+'<br>Not answered: <b>'+(t.qs.length-na)+'</b><br>Marked for review: <b>'+mk+'</b>'+(RUN.untimed?'<br>Time taken: <b>'+mmss((Date.now()-RUN.startedAt)/1000)+'</b>':'<br>Time left: <b>'+mmss(left)+'</b>')+'</div>'+(na<cap?'<div style="font-size:12px;color:var(--orange);margin-bottom:12px">You can still answer '+(cap-na)+' more.</div>':'')+'<button class="btn" id="subYes">Yes, submit</button><div class="linkish" id="subNo">Keep going</div>');
   $("subYes").addEventListener("click",function(){closeSheet();doSubmit(false);});
   $("subNo").addEventListener("click",closeSheet);
 }
@@ -907,22 +956,24 @@ function doSubmit(auto){
   var t=getTest(RUN.tid);bumpTime();closeSheet();
   var ev=evaluate(t,RUN.ans,RUN.times);
   var used=Math.min(Date.now(),RUN.endAt)-RUN.startedAt;
-  var rec={id:Date.now(),ts:Date.now(),date:todayStr(),tid:t.id,name:t.name,subject:t.subject||"",chapter:t.chapter||"",score:ev.score,max:testMax(t),attempted:ev.att,correct:ev.cor,wrong:ev.wr,skipped:t.qs.length-ev.att,acc:ev.att?Math.round(ev.cor/ev.att*100):0,used:Math.round(used/1000),dur:t.duration*60,ans:RUN.ans.slice(),times:RUN.times.map(function(x){return Math.round(x);}),mark:RUN.mark.slice(),auto:!!auto};
-  MOCKS.attempts.push(rec);saveMocks();
-  if(ev.att>0){DB.questions.push({date:todayStr(),subject:t.subject||"Chemistry",type:"Mock",total:ev.att,correct:ev.cor,ts:Date.now()});save(DB);}
-  clearRun();closeRunUI();goPage("mock");showAnalysis(rec,true);
+  var rec={id:Date.now(),ts:Date.now(),date:todayStr(),tid:t.id,name:t.name,subject:t.subject||"",chapter:t.chapter||"",score:ev.score,max:testMax(t),attempted:ev.att,correct:ev.cor,wrong:ev.wr,skipped:t.qs.length-ev.att,acc:ev.att?Math.round(ev.cor/ev.att*100):0,used:Math.round(used/1000),dur:RUN.untimed?0:t.duration*60,ans:RUN.ans.slice(),times:RUN.times.map(function(x){return Math.round(x);}),mark:RUN.mark.slice(),auto:!!auto};
+  var first=false;
+  if(t.dpp){rec.dpp=1;rec.pid=t.pid||t.id;if(t.qmap)rec.qmap=t.qmap;first=!t.wrong&&!dppAtts(rec.pid).length;DPPA.attempts.push(rec);saveDppA();}
+  else{MOCKS.attempts.push(rec);saveMocks();}
+  if(ev.att>0&&(!t.dpp||first)){DB.questions.push({date:todayStr(),subject:t.subject||"Chemistry",type:t.dpp?"DPP":"Mock",total:ev.att,correct:ev.cor,ts:Date.now()});save(DB);}
+  clearRun();closeRunUI();if(t.dpp)showAnalysis(rec,true);else{goPage("mock");showAnalysis(rec,true);}
   toast(auto?"Time's up - test submitted":"Test submitted ✅");
 }
 
 /* ---- analysis ---- */
 function showAnalysis(a,fresh){
   var t=getTest(a.tid);if(!t){toast("This test is no longer available");return;}
-  mockShow("mockAnalysis");
+  mockShow("mockAnalysis");if(t.dpp)showMockPage();
   var ev=evaluate(t,a.ans,a.times),cap=t.attempt||t.qs.length;
   var pct=a.max?Math.max(0,a.score/a.max):0,col=a.score<0?"var(--red)":pct>=.7?"var(--green)":pct>=.45?"var(--orange)":"var(--red)";
   var neg=a.wrong,h='<div class="hello">Test Analysis</div><div class="date-line">'+esc(a.name)+' · '+new Date(a.ts).toLocaleDateString("en-IN",{day:"numeric",month:"short",year:"numeric"})+'</div>';
   h+='<div class="glass card"><div class="mo-hero"><div class="ring-wrap" style="width:116px;height:116px"><svg width="116" height="116" viewBox="0 0 128 128"><circle class="ring-bg" cx="64" cy="64" r="54"/><circle class="ring-fg" cx="64" cy="64" r="54" stroke-dasharray="339.3" stroke-dashoffset="'+(339.3*(1-pct)).toFixed(1)+'" style="stroke:'+col+'"/></svg><div class="ring-center"><div class="ring-pct" style="font-size:22px">'+Math.round(pct*100)+'%</div><div class="ring-lbl">of max</div></div></div>'+
-    '<div style="flex:1"><div class="mo-score" style="'+(a.score<0?'background:none;-webkit-text-fill-color:var(--red)':'')+'">'+a.score+'<small> / '+a.max+'</small></div><div style="font-size:12px;color:var(--dim);margin-top:8px;line-height:1.6">Accuracy <b style="color:var(--txt)">'+a.acc+'%</b><br>Time <b style="color:var(--txt)">'+fmtDur(a.used)+'</b> of '+Math.round(a.dur/60)+' min'+(a.auto?' · auto-submitted':'')+'</div></div></div></div>';
+    '<div style="flex:1"><div class="mo-score" style="'+(a.score<0?'background:none;-webkit-text-fill-color:var(--red)':'')+'">'+a.score+'<small> / '+a.max+'</small></div><div style="font-size:12px;color:var(--dim);margin-top:8px;line-height:1.6">Accuracy <b style="color:var(--txt)">'+a.acc+'%</b><br>Time <b style="color:var(--txt)">'+fmtDur(a.used)+'</b>'+(a.dur?' of '+Math.round(a.dur/60)+' min':' · untimed')+(a.auto?' · auto-submitted':'')+'</div></div></div></div>';
   h+='<div class="mo-stats"><div class="glass stat"><div class="num">'+a.attempted+'</div><div class="cap">Attempted</div></div><div class="glass stat"><div class="num" style="color:var(--green)">'+a.correct+'</div><div class="cap">Correct</div></div><div class="glass stat"><div class="num" style="color:var(--red)">'+a.wrong+'</div><div class="cap">Wrong</div></div><div class="glass stat"><div class="num" style="color:var(--dim)">'+a.skipped+'</div><div class="cap">Skipped</div></div></div>';
   h+='<div class="glass card"><div class="card-title">Section-wise</div><table class="mo-tbl"><tr><th>Section</th><th>Att</th><th>✓</th><th>✗</th><th>Score</th><th>Acc</th></tr>';
   ev.secs.forEach(function(s){var ac=s.att?Math.round(s.cor/s.att*100):0;h+='<tr><td>'+esc(s.name.replace(/^Section /,"").replace(" · ",": "))+'</td><td>'+s.att+'/'+s.tot+'</td><td style="color:var(--green)">'+s.cor+'</td><td style="color:var(--red)">'+s.wr+'</td><td>'+s.score+'</td><td>'+(s.att?ac+'%':'–')+'</td></tr>';});
@@ -935,6 +986,7 @@ function showAnalysis(a,fresh){
   if(ws&&ws.cor/ws.att<0.7)ins.push('Weakest section: <b>'+esc(ws.name.replace(/^Section /,"").replace(" · ",": "))+'</b> ('+Math.round(ws.cor/ws.att*100)+'% accuracy).');
   var skCorrect=0;
   if(a.wrong>0&&a.attempted>0&&a.wrong/a.attempted>0.3)ins.push('More than 30% of your attempts were wrong - skip questions you are unsure about to protect marks.');
+  if(t.dpp){var prv=null;DPPA.attempts.forEach(function(x){if(x.tid===a.tid&&x.ts<a.ts)prv=x;});if(prv){var dd=a.acc-prv.acc;ins.push('Accuracy <b>'+a.acc+'%</b> vs <b>'+prv.acc+'%</b> last time ('+(dd>=0?'+':'')+dd+'%).');}else ins.push('First attempt saved. Re-attempt this DPP any time to see your improvement.');}
   h+='<div class="glass card"><div class="card-title">Insights</div>'+ins.map(function(x){return '<div class="mo-ins">'+x+'</div>';}).join("")+'</div>';
   // time analysis
   var tm=[];t.qs.forEach(function(q,i){tm.push({i:i,s:a.times[i]||0,st:a.ans[i]<0?"s":a.ans[i]===q.a?"c":"w"});});
@@ -944,16 +996,18 @@ function showAnalysis(a,fresh){
     '<div class="mo-ins">Avg per attempted question: <b>'+(a.attempted?fmtDur(tm.reduce(function(z,x){return z+(x.st!=="s"?x.s:0);},0)/a.attempted):"–")+'</b><br>Avg on correct: <b>'+(nc?fmtDur(tc/nc):"–")+'</b> · on wrong: <b>'+(nw?fmtDur(twr/nw):"–")+'</b></div>'+
     '<div style="font-size:11px;color:var(--dim);letter-spacing:1px;text-transform:uppercase;font-weight:700;margin:12px 2px 8px">Slowest questions</div>'+
     slow.map(function(x){var c=x.st==="c"?"var(--green)":x.st==="w"?"var(--red)":"var(--dim)";return '<div class="sess-row"><span>Q'+(x.i+1)+' <span style="color:'+c+'">· '+(x.st==="c"?"correct":x.st==="w"?"wrong":"skipped")+'</span></span><b>'+fmtDur(x.s)+'</b></div>';}).join("")+'</div>';
-  h+='<button class="btn" id="anReview">Review all questions</button><div style="height:10px"></div><div style="display:flex;gap:10px"><button class="btn ghost sm" style="flex:1" id="anRetake">Retake</button><button class="btn ghost sm" style="flex:1" id="anBack">All tests</button></div>';
+  h+='<button class="btn" id="anReview">Review all questions</button><div style="height:10px"></div><div style="display:flex;gap:10px"><button class="btn ghost sm" style="flex:1" id="anRetake">Retake</button><button class="btn ghost sm" style="flex:1" id="anBack">'+(t.dpp?"This DPP":"All tests")+'</button></div>';
+  if(t.dpp)h+='<div style="height:10px"></div><button class="btn ghost sm" id="anWeak">🔁 Re-quiz my weak questions</button>';
   $("mockAnalysis").innerHTML=h;
+  if(t.dpp)$("anWeak").addEventListener("click",function(){startWeak(t.pid||t.id);});
   $("anReview").addEventListener("click",function(){showReview(a,"all");});
   $("anRetake").addEventListener("click",function(){startTest(a.tid);});
-  $("anBack").addEventListener("click",renderMockHome);
+  $("anBack").addEventListener("click",function(){if(t.dpp)dppDetail(t.pid||t.id);else renderMockHome();});
 }
 
 /* ---- review ---- */
 function showReview(a,filter){
-  var t=getTest(a.tid);mockShow("mockReview");
+  var t=getTest(a.tid);mockShow("mockReview");if(t.dpp)showMockPage();
   var cnt={all:t.qs.length,wrong:0,correct:0,skipped:0};
   t.qs.forEach(function(q,i){var u=a.ans[i];if(u<0)cnt.skipped++;else if(u===q.a)cnt.correct++;else cnt.wrong++;});
   var h='<div class="hello">Review</div><div class="date-line">'+esc(a.name)+' · score '+a.score+'/'+a.max+'</div><div class="chips" id="rvChips"></div>';
@@ -1029,7 +1083,7 @@ function renderMockChap(){
     B.appendChild(d);
   });
 }
-function fillChapSel(){var sj=$("dSubj").value,c=$("dChap");c.innerHTML='<option value="">Mixed / full-length</option>'+(CHAPTERS[sj]||[]).map(function(n){return '<option>'+esc(n)+'</option>';}).join("");}
+function fillChapSel(){var sj=$("dSubj").value,c=$("dChap"),bk=null;if(IMPDPP){var bb=bucketByName(sj);sj=bb.s;bk=bb.f||null;}c.innerHTML='<option value="">'+(IMPDPP?"Select chapter…":"Mixed / full-length")+'</option>'+(CHAPTERS[sj]||[]).filter(function(n){return !bk||CHEM_BUCKET[n]===bk;}).map(function(n){return '<option>'+esc(n)+'</option>';}).join("");}
 /* ---------------- PDF IMPORT (on-device, pdf.js) ----------------
    Custom tests are saved in localStorage key npt_custom_tests_v1 and pushed onto NPT_TESTS. */
 function loadCustom(){try{var c=JSON.parse(localStorage.getItem("npt_custom_tests_v1"));if(Array.isArray(c))return c;}catch(e){}return[];}
@@ -1134,17 +1188,24 @@ function parseQuestions(lines){
   return{qs:qs,bad:bad,sections:secs,keyFound:Object.keys(key).length};
 }
 var DRAFT=null;
-function showImport(){mockShow("mockImport");renderImportStart();}
+function showImport(){IMPDPP=0;mockShow("mockImport");renderImportStart();}
 function renderImportStart(){
-  $("mockImport").innerHTML='<div class="hello">Import mock from PDF</div><div class="date-line">Questions are read on your phone. Nothing is uploaded anywhere.</div>'+
+  $("mockImport").innerHTML='<div class="hello">'+(IMPDPP?'Import DPP':'Import mock from PDF')+'</div><div class="date-line">Questions are read on your phone. Nothing is uploaded anywhere.</div>'+
   '<div class="glass card"><div class="card-title">What works</div><div style="font-size:12.5px;color:var(--dim);line-height:1.65">'+
   '✅ Text-based PDFs (you can select/copy text in them)<br>✅ Questions numbered 1. 2. 3. or Q1. Q2.<br>✅ Options as (A) (B) (C) (D), (a)-(d) or (1)-(4)<br>✅ Answer key at the end ("Answer Key" then 1-B, 2-A...) or "Ans: B" under each question<br>'+
   '❌ Scanned or photographed PDFs (no OCR here)<br>⚠️ Formulas, images and diagrams may come out as plain text or go missing. You can check every question before saving.</div></div>'+
   '<input type="file" id="pdfPick" accept="application/pdf,.pdf" style="display:none">'+
   '<button class="btn" id="pdfBtn">Choose PDF</button><div id="pdfStat" style="font-size:13px;color:var(--dim);text-align:center;margin:14px 0"></div>'+
-  '<input type="file" id="jsonPick" style="display:none"><button class="btn ghost sm" id="jsonBtn">Import a ready-made test file (.json / .txt)</button><div class="linkish" id="impBack">← Back to tests</div>';
+  (IMPDPP?'<div class="glass card"><div class="card-title">Or paste the DPP text</div><textarea id="pasteTxt" placeholder="Paste questions here (1. question ... (1) (2) (3) (4)), then the answer key at the end" style="width:100%;min-height:110px;padding:12px;border-radius:14px;background:#14102a;color:var(--txt);border:1px solid var(--border);font-family:inherit;font-size:13px"></textarea><div style="height:10px"></div><button class="btn ghost sm" id="pasteBtn">Read pasted text</button></div>':'')+
+  '<input type="file" id="jsonPick" style="display:none"><button class="btn ghost sm" id="jsonBtn">Import a ready-made '+(IMPDPP?'DPP':'test')+' file (.json / .txt)</button><div class="linkish" id="impBack">← Back</div>';
+  if(IMPDPP)$("pasteBtn").addEventListener("click",function(){
+    var tx=$("pasteTxt").value;if(tx.trim().length<20){$("pdfStat").textContent="Paste the DPP text first.";return;}
+    var r=parseQuestions(tx.split(/\r?\n/).map(function(x){return x.replace(/\s+/g," ").trim();}).filter(Boolean));
+    if(!r.qs.length){$("pdfStat").textContent="Could not find questions with 4 options in that text.";return;}
+    DRAFT={name:"DPP "+todayStr(),r:r};renderDraft();
+  });
   $("pdfBtn").addEventListener("click",function(){$("pdfPick").click();});
-  $("impBack").addEventListener("click",renderMockHome);
+  $("impBack").addEventListener("click",function(){if(IMPDPP)goPage("questions");else renderMockHome();});
   $("jsonBtn").addEventListener("click",function(){$("jsonPick").click();});
   $("jsonPick").addEventListener("change",function(e){
     var f=e.target.files[0];if(!f)return;var r=new FileReader();
@@ -1153,10 +1214,10 @@ function renderImportStart(){
       L.forEach(function(t){
         if(!t||!t.name||!Array.isArray(t.qs)||!t.qs.length)return;
         t.qs.forEach(function(q){if(!Array.isArray(q.o)||q.o.length!==4||!(q.a>=0&&q.a<=3))throw new Error("bad question");q.s=q.s||0;});
-        t.id="custom-"+Date.now()+"-"+(n++);t.custom=1;t.duration=t.duration||t.qs.length;t.attempt=t.attempt||t.qs.length;t.subject=t.subject||"Chemistry";t.sections=t.sections&&t.sections.length?t.sections:["All questions"];t.desc=t.desc||(t.qs.length+" questions imported.");
+        t.id="custom-"+Date.now()+"-"+(n++);t.custom=1;if(IMPDPP){t.dpp=1;t.id="dpp-"+t.id.slice(7);t.chapter=t.chapter||"Unsorted";var bn=bucketByName(t.subject);if(["Physical","Inorganic","Organic"].indexOf(t.subject)>=0){t.bucket=t.subject;t.subject="Chemistry";}else if(t.subject==="Chemistry"){t.bucket=CHEM_BUCKET[t.chapter]||"Physical";}t.attempt=t.qs.length;t.duration=t.duration||Math.ceil(t.qs.length*1.5);}t.duration=t.duration||t.qs.length;t.attempt=t.attempt||t.qs.length;t.subject=t.subject||"Chemistry";t.sections=t.sections&&t.sections.length?t.sections:["All questions"];t.desc=t.desc||(t.qs.length+" questions imported.");
         CUSTOM.push(t);NPT_TESTS.push(t);
       });
-      if(!n)throw new Error("no tests");saveCustom();renderMockHome();toast(n+" test(s) imported ✅");
+      if(!n)throw new Error("no tests");saveCustom();if(IMPDPP)goPage("questions");else renderMockHome();toast(n+(IMPDPP?" DPP(s) imported ✅":" test(s) imported ✅"));
     }catch(err){$("pdfStat").textContent="That file is not a valid test file.";}};
     r.readAsText(f);
   });
@@ -1174,11 +1235,11 @@ function renderImportStart(){
 }
 function renderDraft(){
   var r=DRAFT.r,qs=r.qs,noAns=qs.filter(function(q){return q.a<0;}).length,secN=Math.max(r.sections.length,1);
-  var h='<div class="hello">Check &amp; save</div><div class="date-line">'+qs.length+' questions found'+(r.bad?' · '+r.bad+' skipped (options not found)':'')+(noAns?' · <span style="color:var(--orange)">'+noAns+' need an answer</span>':' · all answers found')+'</div>'+
+  var h='<div class="hello">Check &amp; save'+(IMPDPP?' DPP':'')+'</div><div class="date-line">'+qs.length+' questions found'+(r.bad?' · '+r.bad+' skipped (options not found)':'')+(noAns?' · <span style="color:var(--orange)">'+noAns+' need an answer</span>':' · all answers found')+'</div>'+
   '<div class="glass card"><div class="field"><label>Test name</label><input id="dName" value="'+attr(DRAFT.name)+'"></div>'+
-  '<div style="display:flex;gap:10px"><div class="field" style="flex:1"><label>Minutes</label><input id="dDur" type="number" min="1" value="'+Math.max(1,Math.round(qs.length*1))+'"></div>'+
-  '<div class="field" style="flex:1"><label>Attempt any</label><input id="dAtt" type="number" min="1" max="'+qs.length+'" value="'+qs.length+'"></div></div>'+
-  '<div style="display:flex;gap:10px"><div class="field" style="flex:1"><label>Subject</label><select id="dSubj" style="width:100%;padding:13px;border-radius:14px;background:#14102a;color:var(--txt);border:1px solid var(--border)">'+SUBJECTS.map(function(x){return '<option'+(x===(DRAFT.subj||"Chemistry")?' selected':'')+'>'+x+'</option>';}).join("")+'</select></div>'+
+  '<div style="display:flex;gap:10px"><div class="field" style="flex:1"><label>'+(IMPDPP?"Timer minutes (optional)":"Minutes")+'</label><input id="dDur" type="number" min="1" value="'+Math.max(1,Math.round(qs.length*(IMPDPP?1.5:1)))+'"></div>'+
+  '<div class="field" style="flex:1;'+(IMPDPP?'display:none':'')+'"><label>Attempt any</label><input id="dAtt" type="number" min="1" max="'+qs.length+'" value="'+qs.length+'"></div></div>'+
+  '<div style="display:flex;gap:10px"><div class="field" style="flex:1"><label>Subject</label><select id="dSubj" style="width:100%;padding:13px;border-radius:14px;background:#14102a;color:var(--txt);border:1px solid var(--border)">'+(IMPDPP?BUCKETS.map(function(b){return b.n;}):SUBJECTS).map(function(x){return '<option'+(x===(DRAFT.subj||(IMPDPP?"Physical":"Chemistry"))?' selected':'')+'>'+x+'</option>';}).join("")+'</select></div>'+
   '<div class="field" style="flex:1.4"><label>Chapter</label><select id="dChap" style="width:100%;padding:13px;border-radius:14px;background:#14102a;color:var(--txt);border:1px solid var(--border)"></select></div></div>'+
   '<div style="font-size:11.5px;color:var(--dim)">Results are saved under this chapter. Marking +4 / −1. Keep "Attempt any" equal to the question count unless the paper has optional questions.</div></div>';
   qs.forEach(function(q,i){
@@ -1188,28 +1249,198 @@ function renderDraft(){
     h+='<div style="display:flex;gap:8px;align-items:center;margin-top:10px"><span style="font-size:12px;color:var(--dim)">Correct:</span><select data-i="'+i+'" class="dAns" style="flex:1;padding:9px;border-radius:10px;background:#14102a;color:var(--txt);border:1px solid '+(q.a<0?'var(--orange)':'var(--border)')+'"><option value="-1">Pick answer</option>'+
     [0,1,2,3].map(function(j){return '<option value="'+j+'"'+(q.a===j?' selected':'')+'>'+"ABCD"[j]+'</option>';}).join("")+'</select><span class="linkish dDel" data-i="'+i+'" style="padding:6px;color:var(--red)">Remove</span></div></div>';
   });
-  h+='<button class="btn" id="dSave">Save as test</button><div class="linkish" id="dCancel">Cancel</div>';
+  h+='<button class="btn" id="dSave">Save as '+(IMPDPP?"DPP":"test")+'</button><div class="linkish" id="dCancel">Cancel</div>';
   $("mockImport").innerHTML=h;window.scrollTo({top:0});
   fillChapSel();if(DRAFT.chap)$("dChap").value=DRAFT.chap;
   $("dSubj").addEventListener("change",function(){DRAFT.chap="";fillChapSel();});
   document.querySelectorAll(".dAns").forEach(function(s){s.addEventListener("change",function(){qs[+s.dataset.i].a=+s.value;s.style.borderColor=+s.value<0?"var(--orange)":"var(--border)";});});
   document.querySelectorAll(".dDel").forEach(function(s){s.addEventListener("click",function(){syncDraft();qs.splice(+s.dataset.i,1);renderDraft();});});
-  $("dCancel").addEventListener("click",function(){DRAFT=null;renderMockHome();});
+  $("dCancel").addEventListener("click",function(){DRAFT=null;if(IMPDPP)goPage("questions");else renderMockHome();});
   $("dSave").addEventListener("click",function(){
     syncDraft();
     var miss=qs.filter(function(q){return q.a<0;}).length;
     if(!qs.length)return toast("No questions left");
+    if(IMPDPP&&!$("dChap").value)return toast("Pick the chapter first");
     if(miss&&!confirm(miss+" question(s) have no answer. They will count as wrong if answered. Save anyway?"))return;
     var dur=Math.max(1,parseInt($("dDur").value)||qs.length),att=Math.min(qs.length,Math.max(1,parseInt($("dAtt").value)||qs.length));
     var secs=r.sections.length?r.sections:["All questions"],used={};qs.forEach(function(q){used[q.s]=1;});
-    var t={id:"custom-"+Date.now(),custom:1,name:($("dName").value||"Imported mock").trim(),desc:qs.length+" questions imported from PDF"+(att<qs.length?", attempt any "+att:"")+".",duration:dur,attempt:att,subject:$("dSubj").value,chapter:$("dChap").value,sections:secs,
+    var t={id:(IMPDPP?"dpp-":"custom-")+Date.now(),custom:1,dpp:IMPDPP?1:0,name:($("dName").value||"Imported mock").trim(),desc:qs.length+(IMPDPP?" questions · DPP":" questions imported from PDF")+(att<qs.length&&!IMPDPP?", attempt any "+att:"")+".",duration:dur,attempt:att,subject:IMPDPP?bucketByName($("dSubj").value).s:$("dSubj").value,bucket:IMPDPP?$("dSubj").value:undefined,chapter:$("dChap").value,sections:secs,
       qs:qs.map(function(q){return{s:Math.min(q.s,secs.length-1),q:q.q,o:q.o,a:q.a<0?0:q.a,e:q.a<0?"Answer was not found in the PDF.":""};})};
-    CUSTOM.push(t);saveCustom();NPT_TESTS.push(t);DRAFT=null;renderMockHome();toast("Test saved ✅");
+    CUSTOM.push(t);saveCustom();NPT_TESTS.push(t);DRAFT=null;if(IMPDPP){goPage("questions");toast("DPP saved ✅");}else{renderMockHome();toast("Test saved ✅");}
   });
 }
 function syncDraft(){var n=$("dName");if(n){DRAFT.name=n.value;DRAFT.subj=$("dSubj").value;DRAFT.chap=$("dChap").value;}}
 
 $("mockImpBtn").addEventListener("click",showImport);
+/* ================= DPP MODULE =================
+   DPPs are chapter-wise sets saved with the other imported tests (npt_custom_tests_v1, flag dpp:1).
+   Attempts live in npt_dpp_attempts_v1. Re-attempt as many times as you like. */
+function showMockPage(){
+  document.querySelectorAll(".page").forEach(function(x){x.classList.remove("active");});
+  $("page-mock").classList.add("active");
+  document.querySelectorAll(".nav-item").forEach(function(x){x.classList.toggle("on",x.dataset.page==="questions");});
+  window.scrollTo({top:0});
+}
+function dppList(){return NPT_TESTS.filter(function(t){return t.dpp&&!t.wrong;});}
+function dppAtts(id){return DPPA.attempts.filter(function(a){return a.pid===id;});}
+function plainTxt(h){return String(h).replace(/<[^>]+>/g,"").replace(/&amp;/g,"&").replace(/&lt;/g,"<").replace(/\s+/g," ").trim();}
+/* weak = questions whose latest outcome was wrong or skipped; miss = times answered wrong */
+function dppStats(id){
+  var t=getTest(id),last={},miss={};if(!t)return{weak:[],miss:{}};
+  dppAtts(id).forEach(function(a){
+    a.ans.forEach(function(u,i){var oi=a.qmap?a.qmap[i]:i,q=t.qs[oi];if(!q)return;
+      last[oi]=u<0?"s":u===q.a?"c":"w";if(u>=0&&u!==q.a)miss[oi]=(miss[oi]||0)+1;});
+  });
+  var weak=[];Object.keys(last).forEach(function(k){if(last[k]!=="c")weak.push(+k);});
+  weak.sort(function(a,b){return a-b;});
+  return{weak:weak,miss:miss};
+}
+function startWeak(id){
+  var w=dppStats(id).weak;
+  if(!w.length){toast("No weak questions - all clear 🎉");return;}
+  startTest("w~"+id+"~"+w.join(","));
+}
+function dppModeSheet(id){
+  var t=getTest(id);
+  sheet('<h3>'+esc(t.name)+'</h3><div class="mo-ins">'+t.qs.length+' questions · +4 / −1</div><button class="btn" id="dmT">⏱ Timed · '+t.duration+' min</button><div style="height:10px"></div><button class="btn ghost" id="dmU">Untimed · stopwatch only</button><div class="linkish" id="dmX">Cancel</div>');
+  $("dmT").addEventListener("click",function(){closeSheet();startTest(id,"t");});
+  $("dmU").addEventListener("click",function(){closeSheet();startTest(id,"u");});
+  $("dmX").addEventListener("click",closeSheet);
+}
+function accCol(p){return p>=70?"var(--green)":p>=50?"var(--orange)":"var(--red)";}
+function renderDppCard(){
+  var box=$("dppList");if(!box)return;
+  var rs=$("dppResume");rs.innerHTML="";
+  var run=getRun(),rt=run&&getTest(run.tid);
+  if(rt&&rt.dpp){
+    var c=document.createElement("div");c.className="glass card m-resume";
+    c.innerHTML='<div class="card-title" style="color:var(--orange);margin-bottom:8px">⏳ DPP in progress</div><div style="font-size:14px;font-weight:700;margin-bottom:10px">'+esc(rt.name)+'</div><button class="btn sm">Resume</button>';
+    c.querySelector("button").addEventListener("click",function(){openRun();});rs.appendChild(c);
+  }
+  var L=dppList();
+  if(!L.length){box.innerHTML='<div class="empty">No DPPs yet. Import one from PW and it shows up here under its chapter.</div>';return;}
+  var g={},keys=[];
+  L.forEach(function(t){var bk=bucketOfTest(t),k=bk+"|"+(t.chapter||"Unsorted");if(!g[k]){g[k]={s:bk,c:t.chapter||"Unsorted",l:[]};keys.push(k);}g[k].l.push(t);});
+  keys.sort(function(x,y){
+    var a=g[x],b=g[y],ba=bucketByName(a.s),bb=bucketByName(b.s),sa=BUCKETS.indexOf(ba),sb=BUCKETS.indexOf(bb);if(sa!==sb)return sa-sb;
+    var ca=(CHAPTERS[ba.s]||[]).indexOf(a.c),cb=(CHAPTERS[bb.s]||[]).indexOf(b.c);return ca-cb;});
+  box.innerHTML="";
+  keys.forEach(function(k){
+    var G=g[k],h=document.createElement("div");
+    h.innerHTML='<div class="sec-label" style="margin-top:14px">'+esc(G.c)+' <span style="color:'+(subjectColor(bucketByName(G.s).s)||"var(--dim2)")+';font-weight:600">· '+esc(G.s)+'</span></div>';
+    G.l.forEach(function(t){
+      var A=dppAtts(t.id).filter(function(a){return !a.qmap;}),n=dppAtts(t.id).length,best=0;A.forEach(function(a){if(a.acc>best)best=a.acc;});
+      var last=A.length?A[A.length-1].acc:null;
+      var r=document.createElement("div");r.className="glass m-hist";
+      r.innerHTML='<div class="l"><div class="nm">'+esc(t.name)+'</div><div class="dt">'+t.qs.length+' Q · '+(n?n+' attempt'+(n>1?'s':'')+' · last '+(last===null?'–':last+'%'):'not attempted yet')+'</div></div><div><div class="sc" style="color:'+(A.length?accCol(best):"var(--dim2)")+'">'+(A.length?best+'%':'–')+'</div><div class="ac">best</div></div>';
+      r.addEventListener("click",function(){dppDetail(t.id);});h.appendChild(r);
+    });
+    box.appendChild(h);
+  });
+}
+function dppDetail(id){
+  var t=getTest(id);if(!t){goPage("questions");return;}
+  mockShow("dppDetail");showMockPage();
+  var all=dppAtts(id),full=all.filter(function(a){return !a.qmap;}),st=dppStats(id),box=$("dppDetail");
+  var best=0,sumT=0;all.forEach(function(a){if(a.acc>best)best=a.acc;sumT+=a.used;});
+  var h='<div class="hello">'+esc(t.name)+'</div><div class="date-line">'+esc(bucketOfTest(t))+' · '+esc(t.chapter||"")+' · '+t.qs.length+' questions</div>';
+  var run=getRun();
+  if(run&&run.tid&&(run.tid===id||(getTest(run.tid)||{}).pid===id)){
+    h+='<div class="glass card m-resume"><div class="card-title" style="color:var(--orange);margin-bottom:8px">⏳ In progress</div><button class="btn sm" id="dpResume">Resume</button></div>';
+  }
+  if(all.length){
+    h+='<div class="stat-row" style="margin-bottom:12px"><div class="glass stat"><div class="num">'+all.length+'</div><div class="cap">Attempts</div></div><div class="glass stat"><div class="num" style="color:'+accCol(best)+'">'+best+'%</div><div class="cap">Best accuracy</div></div><div class="glass stat"><div class="num" style="color:var(--orange)">'+st.weak.length+'</div><div class="cap">Weak Q</div></div></div>';
+  }
+  h+='<button class="btn" id="dpStart">'+(all.length?'Attempt again':'Start DPP')+'</button><div style="height:10px"></div>';
+  if(all.length&&st.weak.length)h+='<button class="btn ghost sm" id="dpWeak">🔁 Revise weak questions ('+st.weak.length+')</button><div style="height:10px"></div>';
+  if(all.length)h+='<button class="btn ghost sm" id="dpRev">📖 Review last attempt with solutions</button>';
+  if(full.length>=1){
+    var tr=full.slice(-8),d0=full[0].acc,d1=full[full.length-1].acc;
+    h+='<div class="glass card" style="margin-top:14px"><div class="card-title">📈 Improvement</div><div class="bars" style="height:120px">'+tr.map(function(a,i){return '<div class="bar-col"><span class="bar-h">'+a.acc+'%</span><div class="bar" style="height:'+Math.max(4,a.acc)+'%"></div><span class="bar-day">#'+(full.length-tr.length+i+1)+'</span></div>';}).join("")+'</div><div style="font-size:11.5px;color:var(--dim);text-align:center;margin-top:8px">'+(full.length>1?'First attempt '+d0+'% → latest '+d1+'% ('+(d1-d0>=0?'+':'')+(d1-d0)+'%)':'Accuracy per attempt. Attempt again to see the trend.')+'</div></div>';
+  }
+  var mk=Object.keys(st.miss).map(Number).sort(function(a,b){return st.miss[b]-st.miss[a];}).slice(0,5);
+  if(mk.length){
+    h+='<div class="glass card"><div class="card-title">Most missed</div>'+mk.map(function(oi){return '<div class="sess-row"><span>Q'+(oi+1)+' · '+esc(plainTxt(t.qs[oi].q).slice(0,60))+'…</span><b style="color:var(--red)">'+st.miss[oi]+'×</b></div>';}).join("")+'</div>';
+  }
+  if(all.length){
+    h+='<div class="sec-label">Attempt history</div><div id="dpHist"></div>';
+  }
+  h+='<div class="linkish" id="dpBack">← Back to Questions</div><div class="linkish" id="dpDel" style="color:var(--red)">Delete this DPP</div>';
+  box.innerHTML=h;
+  if($("dpResume"))$("dpResume").addEventListener("click",openRun);
+  $("dpStart").addEventListener("click",function(){startTest(id);});
+  if($("dpWeak"))$("dpWeak").addEventListener("click",function(){startWeak(id);});
+  if($("dpRev"))$("dpRev").addEventListener("click",function(){showReview(all[all.length-1],"all");});
+  $("dpBack").addEventListener("click",function(){goPage("questions");});
+  $("dpDel").addEventListener("click",function(){
+    if(!confirm("Delete this DPP and all its attempts?"))return;
+    CUSTOM=CUSTOM.filter(function(x){return x.id!==id;});saveCustom();
+    NPT_TESTS=NPT_TESTS.filter(function(x){return x.id!==id;});
+    DPPA.attempts=DPPA.attempts.filter(function(a){return a.pid!==id;});saveDppA();
+    clearRunFor(id);goPage("questions");toast("DPP deleted");
+  });
+  var H=$("dpHist");
+  if(H)all.slice().reverse().forEach(function(a){
+    var r=document.createElement("div");r.className="glass m-hist";
+    r.innerHTML='<div class="l"><div class="nm">'+(a.qmap?'🔁 Revision · '+a.qmap.length+' Q':'Full attempt')+'</div><div class="dt">'+new Date(a.ts).toLocaleDateString("en-IN",{day:"numeric",month:"short"})+' · '+new Date(a.ts).toLocaleTimeString("en-IN",{hour:"2-digit",minute:"2-digit"})+' · '+fmtDur(a.used)+(a.dur?'':' · untimed')+'</div></div><div><div class="sc" style="color:'+accCol(a.acc)+'">'+a.correct+'<span style="font-size:11px;color:var(--dim)">/'+a.attempted+'</span></div><div class="ac">'+a.acc+'% · '+a.score+'/'+a.max+'</div></div>';
+    r.addEventListener("click",function(){showAnalysis(a);});H.appendChild(r);
+  });
+}
+function clearRunFor(id){var r=getRun();if(r&&(r.tid===id||String(r.tid).indexOf("w~"+id+"~")===0))clearRun();}
+$("dppImpBtn").addEventListener("click",function(){IMPDPP=1;showMockPage();mockShow("mockImport");renderImportStart();});
+renderDppCard();
+
+/* ================= CHAPTER CHECKLIST: revision auto-uncheck + reminders =================
+   Each chapter has lec / dpp / rev ticks. A ticked Revision un-ticks itself after 3 days and the
+   chapter becomes "due". Reminders are local only: the app shows them when it is opened or running. */
+var REV_MS=3*86400000;
+function revSweep(){
+  var now=Date.now(),n=0;
+  for(var k in DB.chapters){var c=DB.chapters[k];
+    if(c.rev&&c.revAt&&now-c.revAt>=REV_MS){c.rev=false;c.revDue=true;c.dueAt=c.revAt+REV_MS;n++;}
+  }
+  if(n)save(DB);return n;
+}
+function revDueList(){var o=[];for(var k in DB.chapters){var c=DB.chapters[k];if(c.revDue&&!c.rev)o.push({key:k,s:k.split("|")[0],n:k.split("|")[1],at:c.dueAt||0});}o.sort(function(a,b){return a.at-b.at;});return o;}
+function notifSupported(){return "Notification" in window;}
+function askNotif(){
+  if(!notifSupported()){toast("This browser can't show notifications");return;}
+  Notification.requestPermission().then(function(p){toast(p==="granted"?"Reminders on 🔔":"Notifications blocked - in-app reminders still work");renderRevDue();if(p==="granted")revNotify(true);});
+}
+function revNotify(force){
+  if(!notifSupported()||Notification.permission!=="granted")return;
+  var L=revDueList();if(!L.length)return;
+  var sig=todayStr()+"|"+L.length,last=localStorage.getItem("npt_rev_notified");
+  if(!force&&last===sig)return;
+  localStorage.setItem("npt_rev_notified",sig);
+  var body=L.slice(0,3).map(function(x){return x.n;}).join(", ")+(L.length>3?" +"+(L.length-3)+" more":"");
+  var title="Revision due: "+L.length+" chapter"+(L.length>1?"s":"");
+  var opts={body:body,icon:"icon-192.png",tag:"npt-rev"};
+  if(navigator.serviceWorker&&navigator.serviceWorker.getRegistration){
+    navigator.serviceWorker.getRegistration().then(function(r){if(r&&r.showNotification)r.showNotification(title,opts);else new Notification(title,opts);}).catch(function(){try{new Notification(title,opts);}catch(e){}});
+  }else{try{new Notification(title,opts);}catch(e){}}
+}
+function markRevised(key){var c=DB.chapters[key];c.rev=true;c.revAt=Date.now();c.revDue=false;c.lastTouched=todayStr();save(DB);renderRevDue();if($("page-syllabus").classList.contains("active"))renderSyllabus();toast("Revision done ✅ next reminder in 3 days");}
+function renderRevDue(){
+  var L=revDueList(),sy=$("revDue"),hm=$("homeRevDue");
+  var bell=notifSupported()&&Notification.permission!=="granted"&&Notification.permission!=="denied"?'<div class="linkish" id="bellBtn">🔔 Turn on revision reminders</div>':"";
+  function rows(max){return L.slice(0,max).map(function(x,i){return '<div class="sess-row"><span><b>'+esc(x.n)+'</b> · '+esc(x.s)+'</span><span class="linkish" style="padding:0" data-k="'+attr(x.key)+'">Done ✓</span></div>';}).join("");}
+  function wire(el){el.querySelectorAll("[data-k]").forEach(function(b){b.addEventListener("click",function(){markRevised(b.dataset.k);});});var bb=el.querySelector("#bellBtn");if(bb)bb.addEventListener("click",askNotif);}
+  if(sy){
+    if(L.length)sy.innerHTML='<div class="glass card" style="border-color:rgba(251,146,60,.4)"><div class="card-title" style="color:var(--orange)">⏰ Due for revision ('+L.length+')</div>'+rows(50)+bell+'</div>';
+    else sy.innerHTML=(bell?'<div class="glass card" style="padding:6px">'+bell+'</div>':'');
+    wire(sy);
+  }
+  if(hm){
+    if(L.length)hm.innerHTML='<div class="glass card" style="border-color:rgba(251,146,60,.4)"><div class="card-title" style="color:var(--orange)">⏰ Revision due ('+L.length+') <span class="edit" data-go="syllabus">Open</span></div>'+rows(3)+(L.length>3?'<div style="font-size:11.5px;color:var(--dim);padding:8px 4px 0">+'+(L.length-3)+' more in Syllabus</div>':'')+'</div>';
+    else hm.innerHTML="";
+    wire(hm);hm.querySelectorAll("[data-go]").forEach(function(b){b.addEventListener("click",function(){goPage(b.dataset.go);});});
+  }
+}
+function revTick(){revSweep();renderRevDue();revNotify(false);if($("page-syllabus").classList.contains("active"))renderSyllabus();}
+revTick();
+setInterval(revTick,30*60*1000);
+document.addEventListener("visibilitychange",function(){if(!document.hidden)revTick();});
 </script>
 </body>
 </html>
