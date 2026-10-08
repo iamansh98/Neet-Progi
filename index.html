@@ -264,6 +264,70 @@ nav{position:fixed;bottom:0;left:0;right:0;z-index:10;max-width:480px;margin:0 a
 .rv-hero-art{position:absolute;right:-4px;top:0;width:142px;height:142px;object-fit:cover;opacity:.38;mask-image:linear-gradient(to bottom,#000 50%,transparent);pointer-events:none}.rv-deck{position:relative;overflow:hidden;padding-top:112px}.rv-deck-art{position:absolute;top:0;left:0;width:100%;height:104px;object-fit:cover;object-position:center 22%;mask-image:linear-gradient(to bottom,#000 75%,transparent)}.rv-card-art{display:block;position:relative;width:calc(100% + 48px);height:158px;margin:-24px -24px 23px;object-fit:cover;object-position:center 20%;mask-image:linear-gradient(to bottom,#000 72%,transparent)}.rv-card .rv-q{margin:22px 0}.rv-card.answer .rv-q{margin:18px 0}.rv-card .rv-emblem{display:none}.rv-card{min-height:410px}.rv-card.answer{min-height:410px}@media(max-width:360px){.rv-card-art{margin:-20px -20px 20px;width:calc(100% + 40px);height:145px}}
 
 </style>
+<style>
+/* ===== NPT Phase 5: Anime rank, Demon List, Heatmap, SRS, PYQ, Countdown ===== */
+.p5-hero{position:relative;overflow:hidden;border:1px solid #755bea;background:radial-gradient(ellipse at 100% 0%,#383175 0%,transparent 62%),linear-gradient(135deg,#1d1535,#0f1424);border-radius:20px;padding:16px;margin:0 0 12px;box-shadow:0 8px 30px #07091288}
+.p5-row{display:flex;align-items:center;gap:14px}
+.p5-emb{width:68px;height:68px;flex:none;filter:drop-shadow(0 0 10px var(--p5g,#8b5cf6))}
+.p5-rank{font-size:23px;font-weight:800;letter-spacing:-.5px;color:#f7f4ff;line-height:1.1}
+.p5-k{font-size:10px;font-weight:800;letter-spacing:2px;color:#c4b5fd;text-transform:uppercase}
+.p5-sub{font-size:12px;color:#aaaac2;line-height:1.5}
+.p5-bar{height:7px;background:#ffffff15;border-radius:6px;margin:10px 0 6px;overflow:hidden}
+.p5-bar i{display:block;height:100%;background:linear-gradient(90deg,#a78bfa,#67e8f9);border-radius:6px;transition:width .6s}
+.p5-chips{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap}
+.p5-chip{display:inline-flex;align-items:center;gap:6px;padding:6px 11px;border-radius:30px;background:#ffffff0d;border:1px solid #ffffff1c;font-size:11.5px;font-weight:700;color:#dcdcf2}
+.p5-chip.fire{background:#fb923c1f;border-color:#fb923c55;color:#fdba74}
+.p5-chip.risk{background:#f871711f;border-color:#f8717155;color:#fca5a5}
+.p5-cd{display:flex;align-items:center;gap:14px;padding:14px 16px;margin:0 0 12px;border-radius:18px;border:1px solid #38bdf844;background:linear-gradient(120deg,#0f2740,#151a33)}
+.p5-cd b{font-size:30px;line-height:1;letter-spacing:-1px;color:#e0f2fe}
+.p5-cd .u{font-size:11px;color:#7dd3fc;font-weight:700;letter-spacing:1px;text-transform:uppercase}
+.p5-tiles{display:flex;gap:10px;margin:0 0 12px}
+.p5-tile{flex:1;min-height:92px;text-align:left;padding:13px;border-radius:16px;border:1px solid #ffffff1c;background:#ffffff0a;color:#eef0ff;font:inherit;cursor:pointer;display:flex;flex-direction:column;gap:3px}
+.p5-tile.dem{border-color:#f8717155;background:linear-gradient(140deg,#3a1520aa,#14131f)}
+.p5-tile.pyq{border-color:#fbbf2455;background:linear-gradient(140deg,#3a2d12aa,#14131f)}
+.p5-tile b{font-size:22px;letter-spacing:-.5px}.p5-tile span{font-size:11px;color:#b6b9d6;line-height:1.35}.p5-tile em{font-style:normal;font-size:10px;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;color:#c4b5fd}
+.p5-sr{padding:14px 16px;margin:0 0 12px;border-radius:18px;border:1px solid #34d39944;background:linear-gradient(120deg,#0e2a24,#131a2b)}
+.p5-btn{border:0;border-radius:12px;padding:12px 16px;min-height:44px;font:700 13px inherit;cursor:pointer;color:#fff;background:linear-gradient(120deg,#8054e9,#5d50d4)}
+.p5-btn.g{background:linear-gradient(120deg,#10a07a,#0d8bb0)}.p5-btn.r{background:linear-gradient(120deg,#e0475b,#a83279)}.p5-btn.s{background:#ffffff0c;border:1px solid #ffffff22;color:#cdcde5}
+.p5-btn:disabled{opacity:.5}
+.p5-ov{position:fixed;inset:0;z-index:90;overflow-y:auto;overflow-x:hidden;background:radial-gradient(ellipse at 90% 0%,#2d1f4e,transparent 60%),#090d17;color:#eeeefa;padding:18px 16px 44px;padding-top:max(18px,env(safe-area-inset-top))}
+.p5-ov[hidden]{display:none}
+.p5-in{max-width:560px;margin:0 auto}
+.p5-top{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;margin-bottom:12px}
+.p5-top h2{font-size:24px;letter-spacing:-.8px;margin:6px 0 4px}
+.p5-x{width:44px;height:44px;flex:none;border-radius:50%;border:1px solid #ffffff22;background:#ffffff0c;color:#fff;font-size:22px;cursor:pointer}
+.p5-ch{border:1px solid #ffffff1a;background:#ffffff08;border-radius:16px;padding:13px;margin-bottom:10px}
+.p5-ch h4{font-size:14px;margin:0 0 3px;color:#f2f0ff}
+.p5-ch .m{font-size:11px;color:#9a9dbd}
+.p5-ch .a{display:flex;gap:8px;margin-top:10px}
+.p5-ch .a>*{flex:1}
+.p5-dm{font-size:12px;color:#c8cbe6;border-top:1px solid #ffffff10;padding:8px 0;display:flex;gap:8px;justify-content:space-between;align-items:flex-start}
+.p5-dm span.q{flex:1;min-width:0;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
+.p5-pips{white-space:nowrap;color:#f87171;letter-spacing:2px;font-size:13px}
+.p5-q{border:1px solid #ffffff1e;background:#ffffff09;border-radius:18px;padding:16px;margin:12px 0;font-size:15px;line-height:1.6;overflow-wrap:anywhere}
+.p5-o{display:flex;gap:10px;align-items:flex-start;width:100%;text-align:left;min-height:48px;padding:12px 13px;margin-bottom:9px;border-radius:14px;border:1px solid #ffffff22;background:#ffffff0a;color:#eef0ff;font:inherit;font-size:14px;line-height:1.45;cursor:pointer;overflow-wrap:anywhere}
+.p5-o i{font-style:normal;flex:none;width:24px;height:24px;border-radius:50%;background:#ffffff14;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800}
+.p5-o.ok{border-color:#34d399;background:#34d39922}.p5-o.no{border-color:#f87171;background:#f8717122}
+.p5-fb{border-radius:14px;padding:12px 14px;margin:6px 0 12px;font-size:13px;line-height:1.55;background:#ffffff0b;border:1px solid #ffffff1a}
+.p5-fb.ok{border-color:#34d39966}.p5-fb.no{border-color:#f8717166}
+.p5-fin{text-align:center;padding:22px 12px;border-radius:20px;border:1px solid #a78bfa55;background:linear-gradient(140deg,#251a45,#101528);margin-top:14px}
+.p5-fin h3{font-size:26px;margin:6px 0}
+.p5-heat{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px}
+.p5-cell{min-height:58px;padding:7px 8px;border-radius:11px;border:1px solid #ffffff18;font-size:10.5px;line-height:1.25;color:#fff;text-align:left;cursor:pointer;font-family:inherit;display:flex;flex-direction:column;justify-content:space-between;overflow:hidden}
+.p5-cell b{font-size:15px}
+.p5-cell.lo{border-style:dashed}
+.p5-cell.off{background:#ffffff08;color:#7c80a3}
+.p5-cell.sel{outline:2px solid #fff}
+.p5-bk{font-size:10px;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;color:#a8a5c5;margin:14px 0 7px}
+.p5-leg{display:flex;align-items:center;gap:6px;font-size:10px;color:#9a9dbd;margin-top:10px}
+.p5-leg i{flex:1;height:7px;border-radius:5px;background:linear-gradient(90deg,hsl(0,70%,42%),hsl(45,75%,45%),hsl(130,65%,38%))}
+.p5-sel{font-size:12px;color:#d6d8f0;margin-top:10px;min-height:18px}
+.p5-yrs{display:flex;gap:8px;margin:8px 0 12px;flex-wrap:wrap}
+.p5-yr{padding:9px 14px;min-height:40px;border-radius:30px;border:1px solid #ffffff22;background:#ffffff0a;color:#cfd2ec;font:700 12px inherit;cursor:pointer}
+.p5-yr.on{background:var(--grad);border-color:transparent;color:#fff}
+.p5-tg{font-size:10.5px;font-weight:800;letter-spacing:1px;color:#fbbf24;text-transform:uppercase}
+@media (max-width:360px){.p5-heat{grid-template-columns:repeat(2,minmax(0,1fr))}}
+</style>
 </head>
 <body>
 <div class="orb orb1"></div><div class="orb orb2"></div><div class="orb orb3"></div>
@@ -281,6 +345,8 @@ nav{position:fixed;bottom:0;left:0;right:0;z-index:10;max-width:480px;margin:0 a
   <section class="page active" id="page-home">
     <div class="hello" id="helloLine">Welcome back</div>
     <div class="date-line" id="dateLine"></div>
+
+    <div id="p5Top"></div>
 
     <div class="glass card">
       <div class="card-title">Syllabus Progress</div>
@@ -314,6 +380,7 @@ nav{position:fixed;bottom:0;left:0;right:0;z-index:10;max-width:480px;margin:0 a
     </div>
 
     <div id="nptRevisionHub"></div>
+    <div id="p5Mid"></div>
     <div id="homeRevDue"></div>
     <div class="glass card">
       <div class="card-title">Today's Targets <span class="edit" id="editTargets">Edit</span></div>
@@ -432,6 +499,10 @@ nav{position:fixed;bottom:0;left:0;right:0;z-index:10;max-width:480px;margin:0 a
     <div class="glass card">
       <div class="card-title" style="color:var(--red)">⚠ Weak areas to revisit</div>
       <div id="weakList"><div class="empty">No weak chapters flagged. Set accuracy on completed chapters to track them.</div></div>
+    </div>
+    <div class="glass card">
+      <div class="card-title">🔥 Weak area heatmap</div>
+      <div id="p5Heat"></div>
     </div>
     <div class="glass card">
       <div class="card-title">📝 Mock score trend</div>
@@ -782,7 +853,7 @@ function renderAnalytics(){
 }
 /* ---------------- backup ---------------- */
 $("btnExport").addEventListener("click",function(){
-  var blob=new Blob([JSON.stringify(Object.assign({},DB,{mocks:MOCKS.attempts,customTests:CUSTOM,dppAttempts:DPPA.attempts,revisionFlashcards:nptRevisionState}),null,1)],{type:"application/json"});
+  var blob=new Blob([JSON.stringify(Object.assign({},DB,{mocks:MOCKS.attempts,customTests:CUSTOM,dppAttempts:DPPA.attempts,revisionFlashcards:nptRevisionState,p5State:(window.p5GetState?window.p5GetState():undefined)}),null,1)],{type:"application/json"});
   var a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download="npt-backup-"+todayStr()+".json";a.click();
   toast("Backup exported");
 });
@@ -790,7 +861,7 @@ $("btnImportBtn").addEventListener("click",function(){$("importFile").click();})
 $("importFile").addEventListener("change",function(e){
   var f=e.target.files[0];if(!f)return;
   var r=new FileReader();
-  r.onload=function(){try{var d=JSON.parse(r.result);if(d&&d.chapters){var rv=d.revisionFlashcards;if(rv&&rv.version===1){nptRevisionState=rv;nptRevisionSave();}delete d.revisionFlashcards;var mk=d.mocks,ct=d.customTests,dpa=d.dppAttempts;delete d.mocks;delete d.customTests;delete d.dppAttempts;if(ct&&ct.length){CUSTOM=ct;saveCustom();ct.forEach(function(t){if(!getTest(t.id))NPT_TESTS.push(t);});}DB=d;save(DB);if(mk&&mk.length){MOCKS.attempts=mk;saveMocks();}if(dpa&&dpa.length){DPPA.attempts=dpa;saveDppA();}renderHome();renderAnalytics();toast("Backup restored ✅");}else toast("Invalid backup file");}catch(err){toast("Invalid backup file");}};
+  r.onload=function(){try{var d=JSON.parse(r.result);if(d&&d.chapters){var rv=d.revisionFlashcards;if(rv&&rv.version===1){nptRevisionState=rv;nptRevisionSave();}var p5s=d.p5State;delete d.p5State;if(p5s&&window.p5SetState)window.p5SetState(p5s);delete d.revisionFlashcards;var mk=d.mocks,ct=d.customTests,dpa=d.dppAttempts;delete d.mocks;delete d.customTests;delete d.dppAttempts;if(ct&&ct.length){CUSTOM=ct;saveCustom();ct.forEach(function(t){if(!getTest(t.id))NPT_TESTS.push(t);});}DB=d;save(DB);if(mk&&mk.length){MOCKS.attempts=mk;saveMocks();}if(dpa&&dpa.length){DPPA.attempts=dpa;saveDppA();}renderHome();renderAnalytics();toast("Backup restored ✅");}else toast("Invalid backup file");}catch(err){toast("Invalid backup file");}};
   r.readAsText(f);
 });
 /* ---------------- MOCK TESTS ----------------
@@ -1503,6 +1574,400 @@ document.addEventListener('visibilitychange',function(){if(!document.hidden)rvRe
 setInterval(rvRenderHub,60000);
 rvRenderHub();
 
+</script>
+<div id="p5Overlay" class="p5-ov" hidden role="dialog" aria-modal="true" aria-label="Dojo"></div>
+<script>
+/* NEET PYQs: text from public NEET (UG) paper PDFs, answers from the official NTA final key for the same booklet code. */
+var NPT_PYQ=[{"id":"neet2024-Q5-q106","y":2024,"ch":"Cell Cycle and Cell Division","stem":"Spindle fibers attach to kinetochores of chromosomes during:","o":["Prophase","Metaphase","Anaphase","Telophase"],"a":1,"src":"NEET (UG) 2024, Code Q5, Q106"},{"id":"neet2024-Q5-q118","y":2024,"ch":"Cell Cycle and Cell Division","stem":"Given below are two statements:\nStatement I: Chromosomes become gradually visible under light microscope during\nleptotene stage.\nStatement II: The beginning of diplotene stage is recognized by dissolution of\nsynaptonemal complex.\nChoose the correct answer from the options given below:","o":["Both Statement I and Statement II are true","Both Statement I and Statement II are false","Statement I is true but Statement II is false","Statement I is false but Statement II is true"],"a":0,"src":"NEET (UG) 2024, Code Q5, Q118"},{"id":"neet2024-Q5-q164","y":2024,"ch":"Cell Cycle and Cell Division","stem":"Following are the stages of cell division:\nA. Gap 2 phase\nB. Cytokinesis\nC. Synthesis phase\nD. Karyokinesis\nE. Gap 1 phase\nChoose the correct sequence of stages from the options given below:","o":["C-E-D-A-B","E-B-D-A-C","B-D-E-A-C","E-C-A-D-B"],"a":3,"src":"NEET (UG) 2024, Code Q5, Q164"},{"id":"neet2024-Q5-q176","y":2024,"ch":"Cell Cycle and Cell Division","stem":"Match List I with List II:\nList I (Sub Phases of Prophase I) List II (Specific Characters)\nA. Diakinesis I. Synaptonemal complex formation\nB. Pachytene II. Completion of terminalisation of chiasmata\nC. Zygotene III. Chromosomes look like thin threads\nD. Leptotene IV. Appearance of recombination nodules\nChoose the correct answer from the options given below","o":["A-IV, B-II, C-I, D-III","A-I, B-II, C-IV, D-III","A-II, B-IV, C-I, D-III","A-IV, B-III, C-II, D-I"],"a":2,"src":"NEET (UG) 2024, Code Q5, Q176"},{"id":"neet2022-S5-q134","y":2022,"ch":"Cell Cycle and Cell Division","stem":"Which one of the following never occurs during mitotic cell division?","o":["Pairing of homologous chromosomes","Coiling and condensation of the chromatids","Spindle fibres attach to kinetochores of chromosomes","Movement of centrioles towards opposite poles"],"a":0,"src":"NEET (UG) 2022, Code S5, Q134"},{"id":"neet2022-S5-q167","y":2022,"ch":"Cell Cycle and Cell Division","stem":"Select the incorrect statement with reference to mitosis:","o":["Chromosomes decondense at telophase","Splitting of centromere occurs at anaphase","All the chromosomes lie at the equator at metaphase","Spindle fibres attach to centromere of chromosomes"],"a":3,"src":"NEET (UG) 2022, Code S5, Q167"},{"id":"neet2022-S5-q176","y":2022,"ch":"Cell Cycle and Cell Division","stem":"Regarding Meiosis, which of the statements is incorrect?","o":["Pairing of homologous chromosomes and recombination occurs in Meiosis-I","Four haploid cells are formed at the end of Meiosis-II","There are two stages in Meiosis, Meiosis-I and II","DNA replication occurs in S phase of Meiosis-II"],"a":3,"src":"NEET (UG) 2022, Code S5, Q176"},{"id":"neet2021-M5-q129","y":2021,"ch":"Cell Cycle and Cell Division","stem":"Which of the following stages of meiosis involves division of centromere?","o":["Metaphase I","Metaphase II","Anaphase II","Telophase II"],"a":2,"src":"NEET (UG) 2021, Code M5, Q129"},{"id":"neet2021-M5-q173","y":2021,"ch":"Cell Cycle and Cell Division","stem":"The fruit fly has 8 chromosomes (2n) in each cell. During interphase of Mitosis if the number of\nchromosomes at G1 phase is 8, what would be the number of chromosomes after S phase?","o":["8","16","4","32"],"a":0,"src":"NEET (UG) 2021, Code M5, Q173"},{"id":"neet2024-Q5-q140","y":2024,"ch":"Cell: The Unit of Life","stem":"The DNA present in chloroplast is:","o":["Linear, double stranded","Circular, double stranded","Linear, single stranded","Circular, single stranded"],"a":1,"src":"NEET (UG) 2024, Code Q5, Q140"},{"id":"neet2024-Q5-q188","y":2024,"ch":"Cell: The Unit of Life","stem":"Given below are two statements:\nStatement I: Mitochondria and chloroplasts both have double membranes bound organelles.\nStatement II: The inner membrane of mitochondria is relatively less permeable, as\ncompared to chloroplast.","o":["Both Statement I and Statement II are correct.","Both Statement I and Statement II are incorrect.","Statement I is correct but Statement II is incorrect.","Statement I is incorrect but Statement II is correct."],"a":2,"src":"NEET (UG) 2024, Code Q5, Q188"},{"id":"neet2022-S5-q154","y":2022,"ch":"Cell: The Unit of Life","stem":"Which of the following statements with respect to Endoplasmic Reticulum is incorrect?","o":["In prokaryotes only RER are present","SER are the sites for lipid synthesis","RER has ribosomes attached to ER","SER is devoid of ribosomes"],"a":0,"src":"NEET (UG) 2022, Code S5, Q154"},{"id":"neet2021-M5-q152","y":2021,"ch":"Cell: The Unit of Life","stem":"The organelles that are included in the endomembrane system are:","o":["Endoplasmic reticulum, Mitochondria, Ribosomes and Lysosomes","Endoplasmic reticulum, Golgi complex, Lysosomes and Vacuoles","Golgi complex. Mitochondria, Ribosomes and Lysosomes","Golgi complex, Endoplasmic reticulum, Mitochondria and Lysosomes"],"a":1,"src":"NEET (UG) 2021, Code M5, Q152"},{"id":"neet2024-Q5-q120","y":2024,"ch":"Biological Classification","stem":"Match List I with List II:\nList-I List-II\nA. Rhizopus I. Mushroom\nB. Ustilago II. Smut fungus\nC. Puccinia III. Bread mould\nD. Agaricus IV. Rust fungus\nChoose the correct answer from the options given below:","o":["A-III, B-II, C-IV, D-I","A-II, B-III, C-I, D-IV","A-III, B-I, C-I, D-IV","A-IV, B-III, C-I, D-I"],"a":0,"src":"NEET (UG) 2024, Code Q5, Q120"},{"id":"neet2024-Q5-q134","y":2024,"ch":"Biological Classification","stem":"Which one of the following is not a criterion for classification of fungi?","o":["Morphology of mycelium","Mode of nutrition","Mode of spore formation","Fruiting body"],"a":1,"src":"NEET (UG) 2024, Code Q5, Q134"},{"id":"neet2022-S5-q103","y":2022,"ch":"Plant Kingdom","stem":"Which of the following is incorrectly matched?","o":["Porphyra – Floridian Starch","Volvox – Starch","Ectocarpus – Fucoxanthin","Ulothrix – Mannitol"],"a":3,"src":"NEET (UG) 2022, Code S5, Q103"},{"id":"neet2022-S5-q113","y":2022,"ch":"Plant Kingdom","stem":"Hydrocolloid carrageen is obtained from:","o":["Rhodophyceae only","Phaeophyceae only","Chlorophyceae and Phaeophyceae","Phaeophyceae and Rhodophyceae"],"a":0,"src":"NEET (UG) 2022, Code S5, Q113"},{"id":"neet2021-M5-q121","y":2021,"ch":"Plant Kingdom","stem":"Which of the following algae produce Carrageen?","o":["Green algae","Brown algae","Red algae","Blue-green algae"],"a":2,"src":"NEET (UG) 2021, Code M5, Q121"},{"id":"neet2021-M5-q125","y":2021,"ch":"Plant Kingdom","stem":"Which of the following algae contains mannitol as reserve food material?","o":["Ectocarpus","Gracilaria","Volvox","Ulothrix"],"a":0,"src":"NEET (UG) 2021, Code M5, Q125"},{"id":"neet2022-S5-q99","y":2022,"ch":"Redox Reactions","stem":"In the neutral or faintly alkaline medium, KMnO4 oxidises iodide into iodate. The change in oxidation state of\nmanganese in this reaction is from","o":["+7 to +3","+6 to +5","+7 to +4","+6 to +4"],"a":2,"src":"NEET (UG) 2022, Code S5, Q99"},{"id":"neet2021-M5-q82","y":2021,"ch":"Redox Reactions","stem":"Which of the following reactions is the metal displacement reaction? Choose the right option.","o":["2KClO3 → 2KCl + 3O2","Cr2O3 + 2Al → Al2O3 + 2Cr","Fe + 2HCl → FeCl2 + H2 ↑","2Pb(NO3 )2 → 2PbO + 4NO2 + O2 ↑"],"a":1,"src":"NEET (UG) 2021, Code M5, Q82"},{"id":"neet2024-Q5-q55","y":2024,"ch":"Thermodynamics","stem":"Match List I with List II.\nList I (Process) List II (Conditions)\nA. Isothermal process I. No heat exchange\nB. Isochoric process II. Carried out at constant temperature\nC. Isobaric process III. Carried out at constant volume\nD. Adiabatic process IV. Carried out at constant pressure\nChoose the correct answer from the options given below:","o":["A-IV, B-III, C-II, D-I","A-IV, B-II, C-III, D-I","A-I, B-III, C-II, D-IV","A-II, B-III, C-IV, D-I"],"a":3,"src":"NEET (UG) 2024, Code Q5, Q55"},{"id":"neet2024-Q5-q81","y":2024,"ch":"Thermodynamics","stem":"In which of the following processes entropy increases?\nA. A liquid evaporates to vapour.\nB. Temperature of a crystalline solid lowered from 130 K to 0 K.\nC. 2NaHCO3 (s) → Na2 CO3 (s) + CO2 (g) + H2 O(g)\nD. Cl2 (g) → 2Cl(g)\nChoose the correct answer from the options given below:","o":["A and C","A, B and D","A, C and D","C and D"],"a":2,"src":"NEET (UG) 2024, Code Q5, Q81"},{"id":"neet2024-Q5-q87","y":2024,"ch":"Thermodynamics","stem":"The work done during reversible isothermal expansion of one mole of hydrogen gas\nat 25°C from pressure of 20 atmosphere to 10 atmosphere is:\n(Given R = 2.0 cal K−1 mol−1 )","o":["0 calorie","-413.14 calories","413.14 calories","100 calories"],"a":1,"src":"NEET (UG) 2024, Code Q5, Q87"},{"id":"neet2024-Q5-q65","y":2024,"ch":"Solutions","stem":"The Henry’s law constant (KH ) values of three gases (A, B, C) in water are 145,\n2 × 10−5 and 35 kbar, respectively. The solubility of these gases in water follows the\norder:","o":["B > A > C","B > C > A","A > C > B","A > B > C"],"a":1,"src":"NEET (UG) 2024, Code Q5, Q65"},{"id":"neet2024-Q5-q100","y":2024,"ch":"Solutions","stem":"The plot of osmotic pressure (Π) vs concentration (mol L−1 ) for a solution gives a\nstraight line with slope 25.73 L bar mol−1 . The temperature at which the osmotic\npressure measurement is done is:\nUse R = 8.314 L bar mol−1 K−1 , log 4 = 0.6021.","o":["37°C","310°C","25.73°C","12.05°C"],"a":0,"src":"NEET (UG) 2024, Code Q5, Q100"},{"id":"neet2022-S5-q53","y":2022,"ch":"Solutions","stem":"In one molal solution that contains 0.5 mole of a solute, there is","o":["100 mL of solvent","1000 g of solvent","500 mL of solvent","500 g of solvent"],"a":3,"src":"NEET (UG) 2022, Code S5, Q53"},{"id":"neet2021-M5-q60","y":2021,"ch":"Solutions","stem":"The following solutions were prepared by dissolving 10 g of glucose (C6H12O6 ) in 250 ml of water (P1 )\n, 10 g of urea (CH4 N2O) in 250 ml of water (P2 ) and 10 g of sucrose (C12H22O11) in 250 ml of water\n(P3 ). The right option for the decreasing order of osmotic pressure of these solutions is :","o":["P2 > P1 > P3","P1 > P2 > P3","P2 > P3 > P1","P3 > P1 > P2"],"a":0,"src":"NEET (UG) 2021, Code M5, Q60"},{"id":"neet2021-M5-q96","y":2021,"ch":"Solutions","stem":"The correct option for the value of vapour pressure of a solution at 45°C with benzene to octane in molar\nratio 3 : 2 is:\n[At 45°C vapour pressure of benzene is 280 mm Hg and that of octane is 420 mm Hg. Assume Ideal gas]","o":["160 mm of Hg","168 mm of Hg","336 mm of Hg","350 mm of Hg"],"a":2,"src":"NEET (UG) 2021, Code M5, Q96"},{"id":"neet2024-Q5-q70","y":2024,"ch":"Chemical Kinetics","stem":"Activation energy of any chemical reaction can be calculated if one knows the value\nof:","o":["rate constant at standard temperature","probability of collision","orientation of reactant molecules during collision","rate constant at two different temperatures"],"a":3,"src":"NEET (UG) 2024, Code Q5, Q70"},{"id":"neet2024-Q5-q92","y":2024,"ch":"Chemical Kinetics","stem":"The rate of a reaction quadruples when temperature changes from 27° C to 57° C.\nCalculate the energy of activation.\nGiven: R = 8.314 J K−1 mol−1 , log 4 = 0.6021","o":["38.04 kJ/mol","380.4 kJ/mol","3.80 kJ/mol","3804 kJ/mol"],"a":0,"src":"NEET (UG) 2024, Code Q5, Q92"},{"id":"neet2022-S5-q93","y":2022,"ch":"Chemical Kinetics","stem":"For a first order reaction A → Products, initial concentration of A is 0.1 M, which becomes 0.001 M after\n5 minutes. Rate constant for the reaction in min–1 is","o":["0.4606","0.2303","1.3818","0.9212"],"a":3,"src":"NEET (UG) 2022, Code S5, Q93"},{"id":"neet2024-Q5-q62","y":2024,"ch":"Electrochemistry","stem":"Match List I with List II.\nList I (Conversion) List II (Number of Faraday required)\nA. 1 mol of H2 O to O2 I. 3F\nB. 1 mol of MnO4− to Mn2+ II. 2F\nC. 1.5 mol of Ca from molten CaCl2 III. 1F\nD. 1 mol of FeO to Fe2 O3 IV. 5F\nChoose the correct answer from the options given below:","o":["A-II, B-IV, C-I, D-III","A-III, B-IV, C-I, D-II","A-II, B-III, C-II, D-IV","A-III, B-IV, C-II, D-I"],"a":0,"src":"NEET (UG) 2024, Code Q5, Q62"},{"id":"neet2024-Q5-q94","y":2024,"ch":"Electrochemistry","stem":"Mass in grams of copper deposited by passing 9.6487 A current through a voltmeter\ncontaining copper sulphate solution for 100 seconds is (Given: Molar mass of Cu = 63\ng/mol, 1 F = 96487 C)","o":["3.15 g","0.315 g","31.5 g","0.0315 g"],"a":1,"src":"NEET (UG) 2024, Code Q5, Q94"},{"id":"neet2022-S5-q64","y":2022,"ch":"Electrochemistry","stem":"At 298 K, the standard electrode potentials of Cu2+ / Cu, Zn2+ / Zn, Fe2+ / Fe and Ag+ / Ag are 0.34 V,\n–0.76 V, –0.44 V and 0.80 V, respectively.\nOn the basis of standard electrode potential, predict which of the following reaction cannot occur?","o":["FeSO4(aq) + Zn(s) → ZnSO4(aq) + Fe(s)","2CuSO4(aq) + 2Ag(s) → 2Cu(s) + Ag2SO4(aq)","CuSO4(aq) + Zn(s) → ZnSO4(aq) + Cu(s)","CuSO4(aq) + Fe(s) → FeSO4(aq) + Cu(s)"],"a":1,"src":"NEET (UG) 2022, Code S5, Q64"},{"id":"neet2024-Q5-q61","y":2024,"ch":"Some Basic Concepts of Chemistry","stem":"1 gram of sodium hydroxide was treated with 25 mL of 0.75 M HCl solution, the\nmass of sodium hydroxide left unreacted is equal to:","o":["750 mg","250 mg","Zero","200 mg"],"a":1,"src":"NEET (UG) 2024, Code Q5, Q61"},{"id":"neet2024-Q5-q78","y":2024,"ch":"Some Basic Concepts of Chemistry","stem":"The highest number of helium atoms is in:","o":["4 mol of helium","4 u of helium","3 g of helium","2.271098 L of helium at STP"],"a":0,"src":"NEET (UG) 2024, Code Q5, Q78"},{"id":"neet2024-Q5-q91","y":2024,"ch":"Some Basic Concepts of Chemistry","stem":"A compound X contains 32% of A, 20% of B and remaining percentage of C. Then,\nthe empirical formula of X is:\n(Given atomic masses of A = 64; B = 40; C = 32 u)","o":["A2 BC2","ABC3","A2 B2 C2","ABC4"],"a":1,"src":"NEET (UG) 2024, Code Q5, Q91"},{"id":"neet2022-S5-q56","y":2022,"ch":"Some Basic Concepts of Chemistry","stem":"What mass of 95% pure CaCO3 will be required to neutralise 50 mL of 0.5 M HCl solution according to the\nfollowing reaction?\nCaCO3(s) + 2HCl(aq) → CaCl2(aq) + CO2(g) + H2O(i)\n[Calculate upto second place of decimal point]","o":["3.65 g","9.50 g","1.25 g","1.32 g"],"a":3,"src":"NEET (UG) 2022, Code S5, Q56"},{"id":"neet2024-Q5-q54","y":2024,"ch":"Equilibrium","stem":"For the reaction 2A ⇌ B + C , KC = 4 × 10−3 . At a given time, the composition of\nreaction mixture is [A] = [B] = [C] = 2 × 10−3 M. Then, which of the following is correct?","o":["Reaction is at equilibrium.","Reaction has a tendency to go in forward direction.","Reaction has a tendency to go in backward direction.","Reaction has gone to completion in forward direction."],"a":2,"src":"NEET (UG) 2024, Code Q5, Q54"},{"id":"neet2022-S5-q77","y":2022,"ch":"Equilibrium","stem":"The pH of the solution containing 50 mL each of 0.10 M sodium acetate and 0.01 M acetic acid is\n[Given pKa of CH3COOH = 4.57]","o":["4.57","2.57","5.57","3.57"],"a":2,"src":"NEET (UG) 2022, Code S5, Q77"},{"id":"neet2022-S5-q87","y":2022,"ch":"Equilibrium","stem":"3O2 (g) ⇌ 2O3 (g)\nfor the above reaction at 298 K, KC is found to be 3.0 × 10–59. If the concentration of O2 at equilibrium is\n0.040 M then concentration of O3 in M is","o":["2.4 × 1031","1.2 × 1021","4.38 × 10–32","1.9 × 10–63"],"a":2,"src":"NEET (UG) 2022, Code S5, Q87"},{"id":"neet2024-Q5-q82","y":2024,"ch":"Classification of Elements and Periodicity","stem":"Among Group 16 elements, which one does NOT show -2 oxidation state?","o":["O","Se","Te","Po"],"a":3,"src":"NEET (UG) 2024, Code Q5, Q82"},{"id":"neet2024-Q5-q83","y":2024,"ch":"Classification of Elements and Periodicity","stem":"Arrange the following elements in increasing order of electronegativity:\nN, O, F, C, Si\nChoose the correct answer from the options given below:","o":["Si < C < N < O < F","Si < C < O < N < F","O < F < N < C < Si","F < O < N < C < Si"],"a":0,"src":"NEET (UG) 2024, Code Q5, Q83"},{"id":"neet2022-S5-q63","y":2022,"ch":"Classification of Elements and Periodicity","stem":"The IUPAC name of an element with atomic number 119 is","o":["unununnium","ununoctium","ununennium","unnilennium"],"a":2,"src":"NEET (UG) 2022, Code S5, Q63"},{"id":"neet2022-S5-q67","y":2022,"ch":"Classification of Elements and Periodicity","stem":"Identify the incorrect statement from the following","o":["Ionisation enthalpy of alkali metals decreases from top to bottom in the group.","Lithium is the strongest reducing agent among the alkali metals.","Alkali metals react with water to form their hydroxides.","The oxidation number of K in KO2 is +4."],"a":3,"src":"NEET (UG) 2022, Code S5, Q67"},{"id":"neet2022-S5-q73","y":2022,"ch":"Classification of Elements and Periodicity","stem":"Gadolinium has a low value of third ionisation enthalpy because of","o":["high electronegativity","high basic character","small size","high exchange enthalpy"],"a":3,"src":"NEET (UG) 2022, Code S5, Q73"},{"id":"neet2024-Q5-q165","y":2024,"ch":"Structural Organisation in Animals","stem":"In both sexes of cockroach, a pair of jointed filamentous structures called anal\ncerci are present on:","o":["5th segment","10th segment","8th and 9th segment","11th segment"],"a":1,"src":"NEET (UG) 2024, Code Q5, Q165"},{"id":"neet2024-Q5-q193","y":2024,"ch":"Structural Organisation in Animals","stem":"Match List I with List II related to the digestive system of a cockroach:\nList I List II\nA. The structures used for storing of food I. Gizzard\nB. Ring of 6-8 blind tubules at junction of foregut and II. Gastric Caeca\nmidgut\nC. Ring of 100-150 yellow coloured thin filaments at junc- III. Malpighian tubules\ntion of midgut and hindgut\nD. The structures used for grinding the food. IV. Crop\nChoose the correct answer from the options given below:","o":["A-IV, B-II, C-III, D-I","A-I, B-II, C-III, D-IV","A-IV, B-III, C-II, D-I","A-III, B-II, C-IV, D-I"],"a":0,"src":"NEET (UG) 2024, Code Q5, Q193"},{"id":"neet2024-Q5-q200","y":2024,"ch":"Structural Organisation in Animals","stem":"Match List I with List II:\nList I List II\nA. Unicellular glandular epithelium I. Salivary glands\nB. Compound epithelium II. Pancreas\nC. Multicellular glandular epithelium III. Goblet cells of alimentary canal\nD. Endocrine glandular epithelium IV. Moist surface of buccal cavity\nChoose the correct answer from the options given below:","o":["A-I, B-III, C-IV, D-II","A-III, B-II, C-I, D-IV","A-III, B-IV, C-I, D-II","A-IV, B-II, C-I, D-III"],"a":2,"src":"NEET (UG) 2024, Code Q5, Q200"},{"id":"neet2022-S5-q155","y":2022,"ch":"Structural Organisation in Animals","stem":"Tegmina in cockroach, arises from","o":["Metathorax","Prothorax and Mesothorax","Prothorax","Mesothorax"],"a":3,"src":"NEET (UG) 2022, Code S5, Q155"},{"id":"neet2022-S5-q178","y":2022,"ch":"Structural Organisation in Animals","stem":"Which of the following is not a connective tissue?","o":["Cartilage","Neuroglia","Blood","Adipose tissue"],"a":1,"src":"NEET (UG) 2022, Code S5, Q178"},{"id":"neet2021-M5-q182","y":2021,"ch":"Structural Organisation in Animals","stem":"Which of the following characteristics is incorrect with respect to cockroach?","o":["A ring of gastric caeca is present at the junction of midgut and hind gut","Hypopharynx lies within the cavity enclosed by the mouth parts","In Females, 7th to 9th sterna together form a genital pouch","10th abdominal segment in both sexes, bears a pair of anal cerci"],"a":0,"src":"NEET (UG) 2021, Code M5, Q182"},{"id":"neet2021-M5-q192","y":2021,"ch":"Structural Organisation in Animals","stem":"Identify the types of cell junctions that help to stop leakage of the substances across a tissue and\nfacilitation of substances across a tissue and facilitation of communication with neighbouring cells via\nrapid transfer of ions and molecules.","o":["Gap junctions and adhering junctions, respectively","Tight junctions and Gap junctions, respectively","Adhering junctions and Tight junctions, respectively","Adhering junctions and Gap junctions, respectively"],"a":1,"src":"NEET (UG) 2021, Code M5, Q192"},{"id":"neet2024-Q5-q117","y":2024,"ch":"Biotechnology: Principles and Processes","stem":"Hind III always cuts DNA molecules at a particular point called recognition\nsequence and it consists of:","o":["8 bp","6 bp","4 bp","10 bp"],"a":1,"src":"NEET (UG) 2024, Code Q5, Q117"},{"id":"neet2024-Q5-q121","y":2024,"ch":"Biotechnology: Principles and Processes","stem":"Given below are two statements:\nStatement I: Bt toxins are insect group specific and coded by a gene cry IAc.\nStatement II: Bt toxin exists as inactive protoxin in Bacillus thuringiensis. However, after\ningestion by the insect the inactive protoxin gets converted into active form due to acidic pH\nof the insect gut.\nChoose the correct answer from the options given below:","o":["Both Statement I and Statement II are true","Both Statement I and Statement II are false","Statement I is true but Statement II is false","Statement I is false but Statement II is true"],"a":2,"src":"NEET (UG) 2024, Code Q5, Q121"},{"id":"neet2024-Q5-q159","y":2024,"ch":"Biotechnology: Principles and Processes","stem":"The ”Ti plasmid” of Agrobacterium tumefaciens stands for:\nChoose the correct answer from the options given below:","o":["Tumour inhibiting plasmid","Tumor independent plasmid","Tumor inducing plasmid","Temperature independent plasmid"],"a":2,"src":"NEET (UG) 2024, Code Q5, Q159"},{"id":"neet2024-Q5-q163","y":2024,"ch":"Biotechnology: Principles and Processes","stem":"Match List I with List II:\nList I List II\nA. α-1 antitrypsin I. Cotton bollworm\nB. Cry IAb II. ADA deficiency\nC. Cry IAc III. Emphysema\nD. Enzyme replacement therapy IV. Corn borer\nChoose the correct answer from the options given below:","o":["A-II, B-I, C-IV, D-III","A-III, B-II, C-I, D-IV","A-III, B-IV, C-I, D-II","A-II, B-IV, C-I, D-III"],"a":2,"src":"NEET (UG) 2024, Code Q5, Q163"},{"id":"neet2022-S5-q101","y":2022,"ch":"Biotechnology: Principles and Processes","stem":"Which one of the following statement is not true regarding gel electrophoresis technique?","o":["The presence of chromogenic substrate gives blue coloured DNA bands on the gel.","Bright orange coloured bands of DNA can be observed in the gel when exposed to UV light.","The process of extraction of separated DNA strands from gel is called elution.","The separated DNA fragments are stained by using ethidium bromide."],"a":0,"src":"NEET (UG) 2022, Code S5, Q101"},{"id":"neet2022-S5-q127","y":2022,"ch":"Biotechnology: Principles and Processes","stem":"DNA polymorphism forms the basis of","o":["Both genetic mapping and DNA finger printing","Translation","Genetic mapping","DNA finger printing"],"a":0,"src":"NEET (UG) 2022, Code S5, Q127"},{"id":"neet2022-S5-q144","y":2022,"ch":"Biotechnology: Principles and Processes","stem":"In the following palindromic base sequences of DNA, which one can be cut easily by particular restriction\nenzyme?","o":["5′CTCAGT3′; 3′GAGTCA5′","5′GTATTC3′; 3′CATAAG5′","5′GATACT3′; 3′CTATGA5′","5′GAATTC3′; 3′CTTAAG5′"],"a":3,"src":"NEET (UG) 2022, Code S5, Q144"},{"id":"neet2022-S5-q147","y":2022,"ch":"Biotechnology: Principles and Processes","stem":"Transposons can be used during which one of the following ?","o":["Autoradiography","Gene sequencing","Polymerase Chain Reaction","Gene Silencing"],"a":3,"src":"NEET (UG) 2022, Code S5, Q147"},{"id":"neet2022-S5-q149","y":2022,"ch":"Biotechnology: Principles and Processes","stem":"If a geneticist uses the blind approach for sequencing the whole genome of an organism, followed by\nassignment of function to different segments, the methodology adopted by him is called as :","o":["Expressed sequence tags","Bioinformatics","Sequence annotation","Gene mapping"],"a":2,"src":"NEET (UG) 2022, Code S5, Q149"},{"id":"neet2022-S5-q180","y":2022,"ch":"Biotechnology: Principles and Processes","stem":"Given Below are two statements:\nStatement I:\nRestriction endonucleases recognise specific sequence to cut DNA known as palindromic nucleotide\nsequence.\nStatement II:\nRestriction endonucleases cut the DNA strand a little away from the centre of the palindromic site.\nIn the light of the above statements, choose the most appropriate answer from the options given below:","o":["Statement I is correct but Statement II is incorrect","Statement I is incorrect but Statement II is correct","Both Statement I and Statement II are correct","Both Statement I and Statement II are incorrect"],"a":2,"src":"NEET (UG) 2022, Code S5, Q180"},{"id":"neet2022-S5-q181","y":2022,"ch":"Biotechnology: Principles and Processes","stem":"In gene therapy of Adenosine Deaminase (ADA) deficiency, the patient requires periodic infusion of\ngenetically engineered lymphocytes because :","o":["Lymphocyctes from patient's blood are grown in culture, outside the body.","Genetically engineered lymphocytes are not immortal cells.","Retroviral vector is introduced into these lymphocytes.","Gene isolated from marrow cells producing ADA is introduced into cells at embryonic stages"],"a":1,"src":"NEET (UG) 2022, Code S5, Q181"},{"id":"neet2022-S5-q189","y":2022,"ch":"Biotechnology: Principles and Processes","stem":"Which of the following is not a desirable feature of a cloning vector?","o":["Presence of single restriction enzyme site","Presence of two or more recognition sites","Presence of origin of replication","Presence of a marker gene"],"a":1,"src":"NEET (UG) 2022, Code S5, Q189"},{"id":"neet2021-M5-q103","y":2021,"ch":"Biotechnology: Principles and Processes","stem":"Which of the following is a correct sequence of steps in a PCR (Polymerase Chain Reaction) ?","o":["Denaturation, Annealing, Extension","Denaturation, Extension. Annealing","Extension. Denaturation, Annealing","Annealing, Denaturation, Extension"],"a":0,"src":"NEET (UG) 2021, Code M5, Q103"},{"id":"neet2021-M5-q117","y":2021,"ch":"Biotechnology: Principles and Processes","stem":"Which of the following is not an application of PCR (Polymerase Chain Reaction)?","o":["Molecular diagnosis","Gene amplification","Purification of isolated protein","Detection of gene mutation"],"a":2,"src":"NEET (UG) 2021, Code M5, Q117"},{"id":"neet2021-M5-q118","y":2021,"ch":"Biotechnology: Principles and Processes","stem":"During the purification process for recombinant DNA technology, addition of chilled ethanol precipitates\nout :","o":["RNA","DNA","Histones","Polysaccharides"],"a":1,"src":"NEET (UG) 2021, Code M5, Q118"},{"id":"neet2021-M5-q181","y":2021,"ch":"Biotechnology: Principles and Processes","stem":"A specific recognition sequence identified by endonucleases to make cuts to specific positions within the\nDNA is:","o":["Degenerate primer sequence","Okazaki sequences","Palindromic Nucleotide sequences","Poly(A) tail sequences"],"a":2,"src":"NEET (UG) 2021, Code M5, Q181"}];
+</script>
+<script>
+try{
+/* ===== NPT Phase 5 =====
+   Own storage key: npt_p5_v1 (never touches older keys except additive PYQ rows in npt_data_v1.questions).
+   Included in backup export/import as p5State. */
+(function(){
+"use strict";
+var KEY="npt_p5_v1";
+function blank(){return{version:1,demons:{},xp:{att:0,cor:0,cards:0,again:0,slain:0},xpDay:{},seenQ:0,seenA:{},act:{},sr:{},pyq:{stats:{}},init:{},rankSeen:-1};}
+function loadP5(){try{var s=JSON.parse(localStorage.getItem(KEY));if(s&&s.version===1){var b=blank();for(var k in b)if(!(k in s))s[k]=b[k];return s;}}catch(e){}return blank();}
+var P5=loadP5();
+function saveP5(){try{localStorage.setItem(KEY,JSON.stringify(P5));}catch(e){toast("Could not save dojo progress. Export a backup.");}}
+window.p5GetState=function(){return P5;};
+window.p5SetState=function(s){if(s&&s.version===1){var b=blank();for(var k in b)if(!(k in s))s[k]=b[k];P5=s;}else P5=blank();saveP5();};
+
+/* ---------- helpers ---------- */
+function dn(s){var p=s.split("-").map(Number);return Math.floor(Date.UTC(p[0],p[1]-1,p[2])/86400000);}
+function addDays(s,n){var p=s.split("-").map(Number);var d=new Date(Date.UTC(p[0],p[1]-1,p[2]+n));return d.getUTCFullYear()+"-"+String(d.getUTCMonth()+1).padStart(2,"0")+"-"+String(d.getUTCDate()).padStart(2,"0");}
+function hesc(s){return String(s==null?"":s).replace(/[&<>"']/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c];});}
+function P(id){return document.getElementById(id);}
+var PYQ=(typeof NPT_PYQ!=="undefined")?NPT_PYQ:[];
+var PYQ_BY={};PYQ.forEach(function(q){PYQ_BY[q.id]=q;});
+function subjOfChapter(ch){if(CHEM_BUCKET[ch])return "Chemistry";for(var i=0;i<SUBJECTS.length;i++){if(CHAPTERS[SUBJECTS[i]].indexOf(ch)>=0)return SUBJECTS[i];}return "Chemistry";}
+function bucketOfChapter(ch){if(CHEM_BUCKET[ch])return CHEM_BUCKET[ch];var s=subjOfChapter(ch);if(s==="Chemistry")return CHEM_BUCKET[ch]||"Physical";return s;}
+function lessText(h){return String(h||"").replace(/<[^>]+>/g," ").replace(/&nbsp;/g," ").replace(/&amp;/g,"&").replace(/&lt;/g,"<").replace(/&gt;/g,">").replace(/\s+/g," ").trim();}
+
+/* ---------- events: XP + activity ---------- */
+function addEv(date,e){
+  var x=P5.xp;x.att+=e.att||0;x.cor+=e.cor||0;x.cards+=e.cards||0;x.again+=e.again||0;x.slain+=e.slain||0;
+  var v=(e.att||0)*2+(e.cor||0)*3+(e.cards||0)*4+(e.again||0)+(e.slain||0)*25;
+  P5.xpDay[date]=(P5.xpDay[date]||0)+v;
+  if(v>0)P5.act[date]=1;
+}
+function xpTotal(){var x=P5.xp;return x.att*2+x.cor*3+x.cards*4+x.again+x.slain*25;}
+var RANKS=[
+ {n:"Academy Student",at:0,tag:"Every Hokage started here."},
+ {n:"Genin",at:300,tag:"Headband earned. Missions begin."},
+ {n:"Chunin",at:1000,tag:"Tactics online. You read the paper like a battlefield."},
+ {n:"Jonin",at:2500,tag:"Elite level. Weak chapters fear you."},
+ {n:"ANBU",at:5000,tag:"Silent. Precise. No wasted attempts."},
+ {n:"Sannin",at:9000,tag:"Legendary focus. Few reach this far."},
+ {n:"Kage",at:15000,tag:"The village runs on your discipline."},
+ {n:"Hokage",at:25000,tag:"Top of the village. Now go beat your best mock."}
+];
+function rankOf(xp){var i=0;for(var k=0;k<RANKS.length;k++)if(xp>=RANKS[k].at)i=k;var cur=RANKS[i],nx=RANKS[i+1]||null;return{i:i,cur:cur,nx:nx,pct:nx?Math.round((xp-cur.at)/(nx.at-cur.at)*100):100};}
+
+/* ---------- streak with decay ---------- */
+function activeDays(){
+  var m={};
+  (DB.sessions||[]).forEach(function(s){if(s.date&&s.minutes>0)m[s.date]=1;});
+  (DB.questions||[]).forEach(function(q){if(q.date&&q.total>0)m[q.date]=1;});
+  for(var k in P5.act)m[k]=1;
+  return Object.keys(m).sort();
+}
+function streakInfo(){
+  var days=activeDays(),n=0,best=0,last=null,t=todayStr();
+  days.forEach(function(d){
+    if(d>t)return;
+    if(last===null)n=1;else{var gap=dn(d)-dn(last)-1;if(gap>0)n=Math.floor(n/Math.pow(2,Math.min(gap,20)));n+=1;}
+    if(n>best)best=n;last=d;
+  });
+  var doneToday=last===t,risk=false;
+  if(last!==null&&!doneToday){var missed=dn(t)-dn(last)-1;if(missed>0)n=Math.floor(n/Math.pow(2,Math.min(missed,20)));else risk=n>0;}
+  return{n:n,best:best,doneToday:doneToday,risk:risk};
+}
+
+/* ---------- demons ---------- */
+function testOf(id){try{return getTest(id);}catch(e){return null;}}
+function resolveDemon(d){
+  if(d.src==="pyq"){var p=PYQ_BY[d.qid];if(!p)return null;return{html:hesc(p.stem).replace(/\n/g,"<br>"),o:p.o.map(hesc),a:p.a,e:"",tag:"NEET "+p.y+" PYQ"};}
+  var t=testOf(d.tid);if(!t)return null;var q=t.qs[d.qi];if(!q)return null;
+  return{html:q.q,o:q.o,a:q.a,e:q.e||"",tag:(t.name||"Test").slice(0,48)};
+}
+function applyDemon(key,meta,correct,date){
+  var d=P5.demons[key];
+  if(!d){
+    if(correct)return null;
+    d=P5.demons[key]=Object.assign({k:key,streak:0,wrong:1,first:Date.now(),last:Date.now(),cleared:false,hist:[0]},meta);
+    return null;
+  }
+  d.last=Date.now();d.hist=(d.hist||[]).concat([correct?1:0]).slice(-8);
+  if(correct){
+    if(!d.cleared){d.streak=(d.streak||0)+1;if(d.streak>=2){d.cleared=true;d.clearedAt=Date.now();addEv(date,{slain:1});return d;}}
+  }else{d.streak=0;d.cleared=false;d.wrong=(d.wrong||0)+1;}
+  return null;
+}
+function openDemons(){var o=[];for(var k in P5.demons){var d=P5.demons[k];if(!d.cleared)o.push(d);}return o;}
+function slainCount(){var n=0;for(var k in P5.demons)if(P5.demons[k].cleared)n++;return n;}
+
+/* ---------- sync from existing attempt history ---------- */
+function p5Sync(){
+  var ch=false;
+  try{
+    var list=[];
+    MOCKS.attempts.forEach(function(r){list.push({r:r,m:1});});
+    DPPA.attempts.forEach(function(r){list.push({r:r,m:0});});
+    list.sort(function(a,b){return (a.r.ts||a.r.id||0)-(b.r.ts||b.r.id||0);});
+    var seenFirst={};
+    list.forEach(function(o){
+      var r=o.r,id=(o.m?"m":"d")+String(r.id||r.ts);
+      var pid=o.m?r.tid:(r.pid||r.tid);
+      var first=false;
+      if(!o.m&&!r.qmap){if(!seenFirst[pid]){seenFirst[pid]=1;first=true;}}
+      if(P5.seenA[id])return;
+      P5.seenA[id]=1;ch=true;
+      var date=r.date||todayStr();
+      if(!o.m&&!first&&r.attempted>0)addEv(date,{att:r.attempted,cor:r.correct});
+      var t=testOf(pid);if(!t||!r.ans)return;
+      r.ans.forEach(function(u,i){
+        var qi=r.qmap?r.qmap[i]:i,q=t.qs[qi];if(!q||u<0)return;
+        var cname=q.chapter||t.chapter||"Mixed / full-length";
+        var bk=q.bucket||((t.chapter||t.subject||t.bucket)?bucketOfTest(t):"Mixed");
+        applyDemon(pid+"#"+qi,{src:"t",tid:pid,qi:qi,ch:cname,bk:bk},u===q.a,date);
+      });
+    });
+    var Q=DB.questions||[];
+    if(P5.seenQ>Q.length)P5.seenQ=Q.length;
+    for(var i=P5.seenQ;i<Q.length;i++){var e=Q[i];addEv(e.date||todayStr(),{att:e.total||0,cor:e.correct||0});ch=true;}
+    P5.seenQ=Q.length;
+    if(!P5.init.cards){
+      var rt=nptRevisionState.ratings||{},kn=0,ag=0;for(var c in rt){if(rt[c]==="known")kn++;else if(rt[c]==="again")ag++;}
+      P5.xp.cards+=kn;P5.xp.again+=ag;P5.init.cards=1;ch=true;
+    }
+    if(srInit())ch=true;
+  }catch(err){console.error("p5Sync",err);}
+  if(ch)saveP5();
+  return ch;
+}
+
+/* ---------- spaced repetition (SM-2 style on the existing again/known ratings) ---------- */
+function allCards(){var m={};try{rvDecks().forEach(function(d){d.cards.forEach(function(c){if(!m[c.id])m[c.id]={c:c,d:d};});});}catch(e){}return m;}
+function hash(s){var h=0;for(var i=0;i<s.length;i++)h=(h*31+s.charCodeAt(i))>>>0;return h;}
+function srInit(){
+  var rt=nptRevisionState.ratings||{},t=todayStr(),ch=false;
+  for(var id in rt){
+    if(P5.sr[id])continue;
+    if(rt[id]==="known")P5.sr[id]={ef:2.5,reps:1,int:1,due:addDays(t,1+hash(id)%4),last:t};
+    else if(rt[id]==="again")P5.sr[id]={ef:2.3,reps:0,int:1,due:t,last:t};
+    else continue;
+    ch=true;
+  }
+  return ch;
+}
+function srRate(id,value){
+  var t=todayStr(),s=P5.sr[id]||{ef:2.5,reps:0,int:0,due:t,last:t};
+  if(value==="known"){
+    s.reps++;s.int=s.reps===1?1:s.reps===2?3:Math.max(s.int+1,Math.round(s.int*s.ef));
+    s.ef=Math.min(3,s.ef+0.05);
+  }else{s.reps=0;s.int=1;s.ef=Math.max(1.3,s.ef-0.2);}
+  s.due=addDays(t,s.int);s.last=t;P5.sr[id]=s;
+}
+function dueCards(){
+  var t=todayStr(),map=allCards(),o=[];
+  for(var id in P5.sr){if(P5.sr[id].due<=t&&map[id])o.push(map[id].c);}
+  return o;
+}
+function nextDue(){var t=todayStr(),best=null;for(var id in P5.sr){var d=P5.sr[id].due;if(d>t&&(best===null||d<best))best=d;}return best;}
+
+/* ---------- countdown ---------- */
+function examDate(){var d=new Date(2027,4,1);while(d.getDay()!==0)d.setDate(d.getDate()+1);return d;}
+
+/* ---------- emblem ---------- */
+function emblem(i){
+  var hue=[200,150,190,265,300,330,20,45][i]||265,c="hsl("+hue+",85%,65%)";
+  return '<svg class="p5-emb" style="--p5g:'+c+'" viewBox="0 0 64 64" aria-hidden="true"><circle cx="32" cy="32" r="29" fill="none" stroke="'+c+'" stroke-opacity=".55" stroke-width="1.5"/><path d="M32 4 38 26 60 32 38 38 32 60 26 38 4 32 26 26Z" fill="'+c+'" fill-opacity=".22" stroke="'+c+'" stroke-width="1.6" stroke-linejoin="round"/><circle cx="32" cy="32" r="6" fill="#0b0d1a" stroke="'+c+'" stroke-width="1.6"/>'+(function(){var s="";for(var k=0;k<=i&&k<8;k++){var a=k/8*Math.PI*2-Math.PI/2;s+='<circle cx="'+(32+21*Math.cos(a)).toFixed(1)+'" cy="'+(32+21*Math.sin(a)).toFixed(1)+'" r="1.9" fill="'+c+'"/>';}return s;})()+'</svg>';
+}
+
+/* ---------- dashboard render ---------- */
+function p5Render(){
+  try{
+    var top=P("p5Top"),mid=P("p5Mid");
+    if(top){
+      var xp=xpTotal(),rk=rankOf(xp),st=streakInfo(),t=todayStr();
+      if(P5.rankSeen<0){P5.rankSeen=rk.i;saveP5();}
+      else if(rk.i>P5.rankSeen){P5.rankSeen=rk.i;saveP5();toast("Rank up! You are now "+rk.cur.n+" ⚡");}
+      var chip=st.n>0?'<span class="p5-chip '+(st.risk?'risk':'fire')+'">🔥 '+st.n+'-day streak'+(st.risk?' · act today or it halves':'')+'</span>':'<span class="p5-chip">🔥 No streak yet · do 1 question today</span>';
+      var ed=examDate(),td=new Date();td.setHours(0,0,0,0);var days=Math.round((ed-td)/86400000);
+      var edTxt=ed.toLocaleDateString("en-IN",{weekday:"short",day:"numeric",month:"short",year:"numeric"});
+      top.innerHTML='<div class="p5-hero"><div class="p5-row">'+emblem(rk.i)+'<div style="min-width:0;flex:1"><div class="p5-k">Dojo rank</div><div class="p5-rank">'+hesc(rk.cur.n)+'</div><div class="p5-sub">'+xp+' XP'+(rk.nx?' · '+(rk.nx.at-xp)+' to '+hesc(rk.nx.n):' · max rank')+'</div></div></div><div class="p5-bar"><i style="width:'+rk.pct+'%"></i></div><div class="p5-sub">'+hesc(rk.cur.tag)+'</div><div class="p5-chips">'+chip+'<span class="p5-chip">⚡ '+(P5.xpDay[t]||0)+' XP today</span></div></div>'
+       +'<div class="p5-cd"><div><b>'+(days>=0?days:0)+'</b></div><div><div class="u">'+(days>0?'days to NEET UG 2027':days===0?'NEET day (expected)':'expected date passed')+'</div><div class="p5-sub">Expected '+hesc(edTxt)+' · NTA has not announced the date yet. About '+Math.max(0,Math.floor(days/7))+' weeks.</div></div></div>';
+    }
+    if(mid){
+      var due=dueCards(),nd=nextDue(),dem=openDemons().length;
+      var srh;
+      if(due.length)srh='<div class="p5-k" style="color:#6ee7b7">Spaced review</div><div style="font-size:17px;font-weight:800;margin:4px 0">'+due.length+' card'+(due.length>1?'s':'')+' due today</div><div class="p5-sub">Scheduled from your Got it / Need another round ratings.</div><div style="margin-top:10px"><button class="p5-btn g" id="p5SrGo" style="width:100%">Review due cards</button></div>';
+      else srh='<div class="p5-k" style="color:#6ee7b7">Spaced review</div><div style="font-size:15px;font-weight:800;margin:4px 0">Nothing due 🎉</div><div class="p5-sub">'+(nd?'Next cards come back '+(dn(nd)-dn(todayStr())===1?'tomorrow':'on '+nd)+'.':'Rate cards in the Revision Dojo and they get scheduled automatically.')+'</div>';
+      mid.innerHTML='<div class="p5-sr">'+srh+'</div><div class="p5-tiles"><button class="p5-tile dem" id="p5DemGo"><em style="color:#fca5a5">Demon list</em><b>'+dem+'</b><span>'+(dem?'wrong questions waiting. 2 clean hits to slay.':'no demons yet. Wrong answers land here.')+'</span></button><button class="p5-tile pyq" id="p5PyqGo"><em style="color:#fde68a">PYQ mode</em><b>'+PYQ.length+'</b><span>real NEET PYQs, year tagged, chapter-wise</span></button></div>';
+      if(P("p5SrGo"))P("p5SrGo").onclick=startDue;
+      P("p5DemGo").onclick=demonHome;P("p5PyqGo").onclick=pyqHome;
+    }
+  }catch(e){console.error("p5Render",e);}
+}
+
+/* ---------- overlay ---------- */
+function ovOpen(html){var o=P("p5Overlay");o.hidden=false;o.innerHTML='<div class="p5-in">'+html+'</div>';o.scrollTop=0;document.body.style.overflow="hidden";var x=P("p5X");if(x)x.onclick=ovClose;}
+function ovClose(){var o=P("p5Overlay");o.hidden=true;o.innerHTML="";document.body.style.overflow="";QZ=null;p5Sync();p5Render();try{if(P("page-analytics").classList.contains("active"))renderAnalytics();}catch(e){}}
+function head(k,title,sub){return '<div class="p5-top"><div><div class="p5-k">'+k+'</div><h2>'+hesc(title)+'</h2><div class="p5-sub">'+sub+'</div></div><button class="p5-x" id="p5X" aria-label="Close">×</button></div>';}
+document.addEventListener("keydown",function(e){if(e.key==="Escape"&&P("p5Overlay")&&!P("p5Overlay").hidden)ovClose();});
+
+/* ---------- quiz engine ---------- */
+var QZ=null;
+function startQuiz(cfg){
+  if(!cfg.items.length){toast("Nothing to fight here yet");return;}
+  QZ={cfg:cfg,items:cfg.items,i:0,right:0,res:[],slain:[],picked:-1};drawQ();
+}
+function drawQ(){
+  var z=QZ;if(!z)return;
+  if(z.i>=z.items.length){return finishQ();}
+  var it=z.items[z.i],c=it.c,L="ABCD";
+  var h=head(z.cfg.kicker,z.cfg.title,(z.i+1)+" of "+z.items.length+" · "+hesc(it.tag||c.tag||""));
+  h+='<div class="p5-bar"><i style="width:'+(z.i/z.items.length*100)+'%"></i></div><div class="p5-q">'+c.html+'</div>';
+  var done=z.picked>=0;
+  h+=c.o.map(function(o,k){var cl="p5-o";if(done){if(k===c.a)cl+=" ok";else if(k===z.picked)cl+=" no";}return '<button class="'+cl+'" data-k="'+k+'" '+(done?'disabled':'')+'><i>'+L[k]+'</i><span>'+o+'</span></button>';}).join("");
+  if(done){
+    var good=z.picked===c.a;
+    h+='<div class="p5-fb '+(good?'ok':'no')+'"><b>'+(good?'Clean hit ✓':'Missed ✗')+'</b> '+(good?'':'Correct: '+L[c.a]+'. ')+(it.note||"")+(c.e?'<div style="margin-top:6px">'+c.e+'</div>':'')+'</div><button class="p5-btn" id="p5Next" style="width:100%">'+(z.i+1>=z.items.length?'Finish':'Next ▶')+'</button>';
+  }
+  ovOpen(h);
+  P("p5Overlay").querySelectorAll(".p5-o").forEach(function(b){b.onclick=function(){pickQ(+b.dataset.k);};});
+  if(P("p5Next"))P("p5Next").onclick=function(){z.i++;z.picked=-1;drawQ();};
+  var ov=P("p5Overlay");
+}
+function pickQ(k){
+  var z=QZ,it=z.items[z.i];if(z.picked>=0)return;
+  z.picked=k;var good=k===it.c.a;if(good)z.right++;
+  z.res.push({it:it,good:good});
+  var sl=z.cfg.onAnswer(it,good);if(sl)z.slain.push(sl);
+  saveP5();drawQ();
+  var ov=P("p5Overlay");var nx=P("p5Next");if(nx&&nx.scrollIntoView)nx.scrollIntoView({block:"nearest"});
+}
+function finishQ(){
+  var z=QZ;var extra=z.cfg.onFinish?z.cfg.onFinish(z):"";
+  p5Sync();
+  var xpGain=z.res.length*2+z.right*3+z.slain.length*25;
+  var h=head(z.cfg.kicker,"Round complete","");
+  h+='<div class="p5-fin"><div class="p5-k">'+hesc(z.cfg.title)+'</div><h3>'+z.right+' / '+z.items.length+' clean</h3><div class="p5-sub">≈ +'+xpGain+' XP'+(z.slain.length?' · 💀 '+z.slain.length+' demon'+(z.slain.length>1?'s':'')+' slain (+'+z.slain.length*25+')':'')+'</div>'+(extra||"")+'</div>';
+  h+='<div style="display:flex;gap:10px;margin-top:14px"><button class="p5-btn s" id="p5Back" style="flex:1">← Back</button><button class="p5-btn" id="p5Done" style="flex:1">Done</button></div>';
+  ovOpen(h);QZ=null;
+  P("p5Done").onclick=ovClose;P("p5Back").onclick=z.cfg.back||ovClose;
+  p5Render();
+}
+
+/* ---------- Demon List ---------- */
+function demonGroups(){
+  var g={};
+  openDemons().forEach(function(d){var k=d.bk+"|"+d.ch;(g[k]=g[k]||{bk:d.bk,ch:d.ch,list:[]}).list.push(d);});
+  return Object.keys(g).map(function(k){return g[k];}).sort(function(a,b){return b.list.length-a.list.length;});
+}
+function demonHome(){
+  p5Sync();var gs=demonGroups(),n=openDemons().length,sl=slainCount();
+  var h=head("Demon list","Wrong answers, hunted down",'Every question you miss in a DPP, mock or PYQ round lands here. Win 2 re-attempts in a row to slay it.');
+  h+='<div class="p5-chips" style="margin:0 0 12px"><span class="p5-chip risk">😈 '+n+' open</span><span class="p5-chip">💀 '+sl+' slain</span></div>';
+  if(n)h+='<button class="p5-btn r" id="p5All" style="width:100%;margin-bottom:12px">Fight the 15 oldest demons</button>';
+  if(!gs.length)h+='<div class="p5-ch"><h4>No demons yet</h4><div class="m">Attempt a DPP, mock or PYQ round. Anything you get wrong is stored here by chapter.</div></div>';
+  h+=gs.map(function(g,gi){
+    return '<div class="p5-ch"><h4>'+hesc(g.ch)+'</h4><div class="m">'+hesc(g.bk)+' · '+g.list.length+' demon'+(g.list.length>1?'s':'')+'</div>'+g.list.slice(0,3).map(function(d){var r=resolveDemon(d);return '<div class="p5-dm"><span class="q">'+hesc(r?lessText(r.html).slice(0,110):"(source test no longer on this device)")+'</span><span class="p5-pips">'+(d.streak>=1?'●':'○')+'○</span></div>';}).join("")+(g.list.length>3?'<div class="m" style="padding-top:6px">+'+(g.list.length-3)+' more</div>':'')+'<div class="a"><button class="p5-btn r" data-g="'+gi+'">Fight ('+Math.min(g.list.length,15)+')</button></div></div>';
+  }).join("");
+  ovOpen(h);
+  P("p5Overlay").querySelectorAll("[data-g]").forEach(function(b){b.onclick=function(){fightDemons(gs[+b.dataset.g].list,gs[+b.dataset.g].ch);};});
+  if(P("p5All"))P("p5All").onclick=function(){fightDemons(openDemons(),"All chapters");};
+}
+function fightDemons(list,label){
+  var items=list.slice().sort(function(a,b){return (a.last||0)-(b.last||0);}).map(function(d){var r=resolveDemon(d);return r?{d:d,c:r,tag:label==="All chapters"?d.ch:"Hits "+(d.streak||0)+"/2",note:""}:null;}).filter(Boolean).slice(0,15);
+  startQuiz({kicker:"Demon list",title:label,items:items,back:demonHome,
+    onAnswer:function(it,good){var date=todayStr();addEv(date,{att:1,cor:good?1:0});var sl=applyDemon(it.d.k,{},good,date);it.note=good?(sl?'💀 Demon slain!':(it.d.streak>=1?'1 more clean hit to slay it.':'')):'Streak reset. It stays on the list.';return sl;}});
+}
+
+/* ---------- PYQ mode ---------- */
+var pyqYear="All";
+function pyqChapters(){var m={};PYQ.forEach(function(q){(m[q.ch]=m[q.ch]||[]).push(q);});return Object.keys(m).map(function(k){return{ch:k,list:m[k]};}).sort(function(a,b){return b.list.length-a.list.length;});}
+function pyqHome(){
+  var yrs=["All"].concat(Array.from(new Set(PYQ.map(function(q){return q.y;}))).sort());
+  var h=head("PYQ mode","Real NEET PYQs",'Each question is tagged with its exam year, paper code and number. Answers come from the official NTA final key for that code.');
+  h+='<div class="p5-yrs">'+yrs.map(function(y){return '<button class="p5-yr'+(String(y)===String(pyqYear)?' on':'')+'" data-y="'+y+'">'+y+'</button>';}).join("")+'</div>';
+  var cs=pyqChapters();
+  h+=cs.map(function(c,ci){
+    var l=c.list.filter(function(q){return pyqYear==="All"||q.y===+pyqYear;});if(!l.length)return"";
+    var tried=0,cor=0;l.forEach(function(q){var s=P5.pyq.stats[q.id];if(s&&s.t){tried++;if(s.last)cor++;}});
+    return '<div class="p5-ch"><h4>'+hesc(c.ch)+'</h4><div class="m">'+hesc(bucketOfChapter(c.ch))+' · '+l.length+' PYQ'+(l.length>1?'s':'')+' · years '+Array.from(new Set(l.map(function(q){return q.y;}))).sort().join(", ")+(tried?' · last round right on '+cor+'/'+tried+' tried':'')+'</div><div class="a"><button class="p5-btn" data-c="'+ci+'">Start</button></div></div>';
+  }).join("");
+  h+='<div class="p5-ch"><h4>Where these come from</h4><div class="m" style="line-height:1.55">Question text is from public NEET (UG) paper PDFs for 2021 (Code M5), 2022 (Code S5) and 2024 (Code Q5). Every answer was matched to the official NTA answer key for that same code, and checked against the chapter concept. Questions with diagrams, graphs or unclear text were left out on purpose. 2023 is not in yet.</div></div>';
+  ovOpen(h);
+  P("p5Overlay").querySelectorAll("[data-y]").forEach(function(b){b.onclick=function(){pyqYear=b.dataset.y;pyqHome();};});
+  P("p5Overlay").querySelectorAll("[data-c]").forEach(function(b){b.onclick=function(){runPyq(cs[+b.dataset.c]);};});
+}
+function runPyq(c){
+  var l=c.list.filter(function(q){return pyqYear==="All"||q.y===+pyqYear;}).slice();
+  l.sort(function(a,b){var sa=P5.pyq.stats[a.id],sb=P5.pyq.stats[b.id];return ((sa?sa.t:0)-(sb?sb.t:0))||(Math.random()-.5);});
+  var items=l.map(function(q){return{p:q,c:{html:hesc(q.stem).replace(/\n/g,"<br>"),o:q.o.map(hesc),a:q.a,e:""},tag:'<span class="p5-tg">NEET '+q.y+'</span> · Code '+hesc(q.src.split("Code ")[1])};});
+  items.forEach(function(it){it.tag=lessText(it.tag);});
+  startQuiz({kicker:"PYQ mode",title:c.ch,items:items,back:pyqHome,
+    onAnswer:function(it,good){
+      var q=it.p,s=P5.pyq.stats[q.id]||{t:0,c:0,last:0};s.t++;if(good)s.c++;s.last=good?1:0;P5.pyq.stats[q.id]=s;
+      var key="pyq:"+q.id,date=todayStr();
+      var sl=applyDemon(key,{src:"pyq",qid:q.id,ch:q.ch,bk:bucketOfChapter(q.ch)},good,date);
+      it.note="Source: "+hesc(q.src)+(sl?" · 💀 Demon slain!":"");return sl;
+    },
+    onFinish:function(z){
+      var n=z.res.length,r=z.right;
+      if(n){DB.questions.push({date:todayStr(),subject:subjOfChapter(c.ch),type:"PYQ",total:n,correct:r,ts:Date.now()});save(DB);}
+      return '<div class="p5-sub" style="margin-top:8px">Logged to your Questions history as PYQ.</div>';
+    }});
+}
+
+/* ---------- spaced review launcher ---------- */
+function startDue(){
+  var due=dueCards();if(!due.length){toast("Nothing due");return;}
+  rvRun={deck:{id:"sr-due",chapter:"Due today",bucket:"Spaced review",source:"",cards:due},cards:due,index:0,flip:false,weak:false,again:0};
+  rvOpen();rvRenderCard();
+}
+var _rvStart=rvStart;
+rvStart=function(id,weak){
+  if(id==="sr-due"){
+    var due=weak?dueCards().filter(function(c){return nptRevisionState.ratings[c.id]==="again";}):dueCards();
+    if(!due.length){toast("Nothing to retry");return;}
+    rvRun={deck:{id:"sr-due",chapter:"Due today",bucket:"Spaced review",source:"",cards:due},cards:due,index:0,flip:false,weak:weak,again:0};rvOpen();rvRenderCard();return;
+  }
+  return _rvStart(id,weak);
+};
+var _rvRate=rvRate;
+rvRate=function(value){
+  var card=(rvRun&&rvRun.flip)?rvRun.cards[rvRun.index]:null;
+  _rvRate(value);
+  if(card){
+    var first=nptRevisionState.ratings[card.id]===value;
+    srRate(card.id,value);
+    addEv(todayStr(),value==="known"?{cards:1}:{again:1});
+    saveP5();
+  }
+};
+/* retry button on the finish screen of a due session re-enters rvStart('sr-due') via deck id */
+
+/* ---------- Weak area heatmap ---------- */
+var heatAll=false,heatSel=null;
+function heatData(){
+  var m={};
+  function add(ch,bk,att,cor){if(!ch||ch==="Mixed / full-length")return;var k=bk+"|"+ch;var x=m[k]||(m[k]={ch:ch,bk:bk,att:0,cor:0});x.att+=att;x.cor+=cor;}
+  var list=MOCKS.attempts.map(function(r){return{r:r,pid:r.tid};}).concat(DPPA.attempts.map(function(r){return{r:r,pid:r.pid||r.tid};}));
+  list.forEach(function(o){
+    var r=o.r,t=testOf(o.pid);if(!t||!r.ans)return;
+    r.ans.forEach(function(u,i){var qi=r.qmap?r.qmap[i]:i,q=t.qs[qi];if(!q||u<0)return;
+      var ch=q.chapter||t.chapter;if(!ch)return;
+      add(ch,q.bucket||bucketOfChapter(ch),1,u===q.a?1:0);});
+  });
+  PYQ.forEach(function(q){var s=P5.pyq.stats[q.id];if(s&&s.t)add(q.ch,bucketOfChapter(q.ch),s.t,s.c);});
+  return m;
+}
+function heatColor(acc,att){var a=Math.min(1,.4+att/30);return "hsla("+Math.round(acc*1.3)+",70%,"+(acc>=75?33:38)+"%,"+a.toFixed(2)+")";}
+function renderHeat(){
+  var box=P("p5Heat");if(!box)return;
+  var m=heatData(),names=[];BUCKETS.forEach(function(b){names.push(b.n);});
+  var rows="",touched=0,weak=[];
+  names.forEach(function(bn){
+    var chs=[],bd=bucketByName(bn);
+    CHAPTERS[bd.s].forEach(function(c){if(!bd.f||CHEM_BUCKET[c]===bd.f)chs.push(c);});
+    Object.keys(m).forEach(function(k){if(m[k].bk===bn&&chs.indexOf(m[k].ch)<0)chs.push(m[k].ch);});
+    var cells=chs.map(function(c){var x=m[bn+"|"+c];if(x)touched++;return{c:c,x:x};}).filter(function(o){return o.x||heatAll;});
+    if(!cells.length)return;
+    cells.sort(function(a,b){return (a.x?a.x.cor/a.x.att:2)-(b.x?b.x.cor/b.x.att:2);});
+    rows+='<div class="p5-bk">'+hesc(bn)+'</div><div class="p5-heat">'+cells.map(function(o){
+      if(!o.x)return '<button class="p5-cell off" data-c="'+hesc(bn+"|"+o.c)+'">'+hesc(o.c)+'<b>–</b></button>';
+      var acc=Math.round(o.x.cor/o.x.att*100);if(o.x.att>=5)weak.push({c:o.c,acc:acc,att:o.x.att});
+      return '<button class="p5-cell'+(o.x.att<5?' lo':'')+(heatSel===bn+'|'+o.c?' sel':'')+'" data-c="'+hesc(bn+"|"+o.c)+'" style="background:'+heatColor(acc,o.x.att)+'">'+hesc(o.c)+'<b>'+acc+'%</b></button>';}).join("")+'</div>';
+  });
+  var tot=Object.keys(m).length;
+  weak.sort(function(a,b){return a.acc-b.acc;});
+  box.innerHTML=(tot?'':'<div class="empty">No attempts yet. Finish a DPP, mock or PYQ round and your chapters light up here.</div>')+
+   (weak.length?'<div class="p5-sub" style="margin-bottom:4px">Weakest right now: '+weak.slice(0,3).map(function(w){return '<b style="color:#fca5a5">'+hesc(w.c)+' '+w.acc+'%</b>';}).join(", ")+'</div>':'')+
+   rows+'<div class="p5-sel" id="p5HeatSel"></div><div class="p5-leg">0%<i></i>100% · dashed = under 5 questions, faint = low sample</div>'+
+   '<div style="margin-top:10px"><button class="p5-btn s" id="p5HeatTog" style="width:100%;min-height:40px">'+(heatAll?'Hide chapters without data':'Show all syllabus chapters')+'</button></div>';
+  box.querySelectorAll(".p5-cell").forEach(function(b){b.onclick=function(){heatSel=b.dataset.c;var x=m[heatSel],nm=heatSel.split("|")[1];P("p5HeatSel").innerHTML=x?'<b>'+hesc(nm)+'</b>: '+x.cor+' right of '+x.att+' attempted ('+Math.round(x.cor/x.att*100)+'%)'+(x.att<5?' · too few questions to trust yet':''):'<b>'+hesc(nm)+'</b>: no attempts yet';box.querySelectorAll(".p5-cell").forEach(function(z){z.classList.toggle("sel",z===b);});};});
+  P("p5HeatTog").onclick=function(){heatAll=!heatAll;renderHeat();};
+}
+
+/* ---------- hooks (all additive, original behaviour runs first) ---------- */
+var _ds=doSubmit;
+doSubmit=function(a){_ds(a);try{p5Sync();p5Render();}catch(e){console.error(e);}};
+var _rh=renderHome;
+renderHome=function(){_rh();p5Sync();p5Render();};
+var _ra=renderAnalytics;
+renderAnalytics=function(){_ra();renderHeat();};
+document.addEventListener("visibilitychange",function(){if(!document.hidden){p5Sync();p5Render();}});
+setInterval(function(){if(!document.hidden){p5Render();}},60000);
+p5Sync();p5Render();renderHeat();
+window.p5Debug={P5:function(){return P5;},xp:xpTotal,streak:streakInfo,sync:p5Sync};
+})();
+
+}catch(e){console.error("NPT phase 5 failed to start",e);}
 </script>
 </body>
 </html>
