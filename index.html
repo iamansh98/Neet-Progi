@@ -200,6 +200,7 @@ nav{position:fixed;bottom:0;left:0;right:0;z-index:10;max-width:480px;margin:0 a
 .mr-top{padding:calc(10px + env(safe-area-inset-top)) 14px 8px;border-bottom:1px solid var(--border);background:rgba(10,12,24,.9)}
 .mr-row{display:flex;align-items:center;gap:10px}
 .mr-x{width:34px;height:34px;border-radius:11px;border:1px solid var(--border);background:rgba(255,255,255,.06);color:var(--txt);font-size:16px;cursor:pointer;flex:none;font-family:inherit}
+.mr-pause{width:34px;height:34px;border-radius:11px;border:1px solid rgba(251,146,60,.4);background:rgba(251,146,60,.1);color:var(--orange);font-size:14px;cursor:pointer;flex:none;font-family:inherit}
 .mr-ttl{flex:1;min-width:0;font-size:12px;color:var(--dim);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .mr-ttl b{display:block;color:var(--txt);font-size:14px}
 .mr-clock{font-variant-numeric:tabular-nums;font-weight:800;font-size:15px;padding:7px 12px;border-radius:99px;background:rgba(139,92,246,.14);border:1px solid rgba(139,92,246,.35);flex:none}
@@ -767,6 +768,7 @@ nav{left:12px;right:12px;bottom:max(12px,env(safe-area-inset-bottom));max-width:
     <div class="mr-row">
       <button class="mr-x" id="mrExit">✕</button>
       <div class="mr-ttl"><b id="mrName">Mock</b><span id="mrCount"></span></div>
+      <button class="mr-pause" id="mrPause" title="Pause test - timer freezes">⏸</button>
       <div class="mr-clock" id="mrClock">45:00</div>
       <button class="mr-sub" id="mrSubmit">Submit</button>
     </div>
@@ -1099,9 +1101,9 @@ function renderMockHome(){
   mockShow("mockHome");
   var run=getRun(),rb=$("mockResume");rb.innerHTML="";
   if(run&&getTest(run.tid)){
-    var t=getTest(run.tid),left=Math.max(0,(run.endAt-Date.now())/1000);
+    var t=getTest(run.tid),left=Math.max(0,(run.endAt-(run.pausedAt||Date.now()))/1000);
     var c=document.createElement("div");c.className="glass card m-resume";
-    c.innerHTML='<div class="card-title" style="color:var(--orange);margin-bottom:8px">⏳ Test in progress</div><div style="font-size:14px;font-weight:700;margin-bottom:4px">'+esc(t.name)+'</div><div style="font-size:12px;color:var(--dim);margin-bottom:12px">'+(run.untimed?'Untimed · your answers are saved':left>0?mmss(left)+' left · timer keeps running':'Time is up - submit to see your analysis')+'</div><button class="btn sm">'+(left>0||run.untimed?'Resume test':'See my result')+'</button>';
+    c.innerHTML='<div class="card-title" style="color:var(--orange);margin-bottom:8px">'+(run.pausedAt?'⏸ Paused':'⏳ Test in progress')+'</div><div style="font-size:14px;font-weight:700;margin-bottom:4px">'+esc(t.name)+'</div><div style="font-size:12px;color:var(--dim);margin-bottom:12px">'+(run.pausedAt?(run.untimed?'Untimed · answers saved · timer frozen':mmss(left)+' left · timer frozen'):run.untimed?'Untimed · your answers are saved':left>0?mmss(left)+' left · timer keeps running':'Time is up - submit to see your analysis')+'</div><button class="btn sm">'+(left>0||run.untimed?'Resume test':'See my result')+'</button>';
     c.querySelector("button").addEventListener("click",function(){openRun();});
     rb.appendChild(c);
   }
@@ -1141,6 +1143,7 @@ var RUN=null,runIv=null;
 function getRun(){if(RUN)return RUN;try{var r=JSON.parse(localStorage.getItem("npt_mock_run"));if(r&&r.tid){RUN=r;return r;}}catch(e){}return null;}
 function saveRun(){if(RUN)localStorage.setItem("npt_mock_run",JSON.stringify(RUN));}
 function clearRun(){RUN=null;localStorage.removeItem("npt_mock_run");}
+function pauseRun(){if(!RUN)return;bumpTime();RUN.pausedAt=Date.now();saveRun();var _t=getTest(RUN.tid);closeRunUI();if(_t&&_t.dpp)dppDetail(_t.pid||_t.id);else goPage("mock");toast(RUN.untimed?"Paused - answers saved. Resume anytime.":"Paused - timer frozen. Resume anytime.");}
 function startTest(id,mode){
   var tt=getTest(id);if(tt&&tt.dpp&&!mode){return dppModeSheet(id);}
   var old=getRun();
@@ -1153,6 +1156,7 @@ function nAnswered(){var c=0;RUN.ans.forEach(function(x){if(x>=0)c++;});return c
 function bumpTime(){if(!RUN)return;var now=Date.now();RUN.times[RUN.cur]+=Math.min(now-RUN.qStart,600000)/1000;RUN.qStart=now;}
 function openRun(){
   getRun();var t=getTest(RUN.tid);
+  if(RUN.pausedAt){var _sh=Date.now()-RUN.pausedAt;RUN.endAt+=_sh;RUN.startedAt+=_sh;delete RUN.pausedAt;saveRun();}
   RUN.qStart=Date.now();
   $("mockRun").classList.add("open");document.body.style.overflow="hidden";
   $("mrName").textContent=t.name;
@@ -1201,6 +1205,7 @@ $("mrNext").addEventListener("click",function(){var t=getTest(RUN.tid);if(RUN.cu
 $("mrClear").addEventListener("click",function(){RUN.ans[RUN.cur]=-1;saveRun();drawRun();});
 $("mrMark").addEventListener("click",function(){RUN.mark[RUN.cur]=RUN.mark[RUN.cur]?0:1;saveRun();drawRun();});
 $("mrExit").addEventListener("click",function(){bumpTime();saveRun();var _t=getTest(RUN.tid);closeRunUI();if(_t&&_t.dpp)dppDetail(_t.pid||_t.id);else goPage("mock");toast(RUN.untimed?"Saved - resume anytime":"Test saved - timer keeps running");});
+$("mrPause").addEventListener("click",pauseRun);
 $("mrPal").addEventListener("click",openPalette);
 $("mrSubmit").addEventListener("click",confirmSubmit);
 function sheet(html){$("mockSheetIn").innerHTML=html;$("mockSheet").classList.add("open");}
@@ -1599,7 +1604,7 @@ function renderDppCard(){
   var run=getRun(),rt=run&&getTest(run.tid);
   if(rt&&rt.dpp){
     var c=document.createElement("div");c.className="glass card m-resume";
-    c.innerHTML='<div class="card-title" style="color:var(--orange);margin-bottom:8px">⏳ DPP in progress</div><div style="font-size:14px;font-weight:700;margin-bottom:10px">'+esc(rt.name)+'</div><button class="btn sm">Resume</button>';
+    c.innerHTML='<div class="card-title" style="color:var(--orange);margin-bottom:8px">'+(run.pausedAt?'⏸ Paused':'⏳ DPP in progress')+'</div><div style="font-size:14px;font-weight:700;margin-bottom:4px">'+esc(rt.name)+'</div><div style="font-size:12px;color:var(--dim);margin-bottom:12px">'+(run.pausedAt?(run.untimed?'Untimed · answers saved · timer frozen':mmss(Math.max(0,(run.endAt-run.pausedAt)/1000))+' left · timer frozen'):'Your progress is saved')+'</div><button class="btn sm">Resume</button>';
     c.querySelector("button").addEventListener("click",function(){openRun();});rs.appendChild(c);
   }
   var L=dppList();
@@ -1633,7 +1638,7 @@ function dppDetail(id){
   if(t.sourceNote)h+='<details class="glass npt-source-note"><summary>Source and answer-key notes</summary><p>'+esc(t.sourceNote)+'</p></details>';
   var run=getRun();
   if(run&&run.tid&&(run.tid===id||(getTest(run.tid)||{}).pid===id)){
-    h+='<div class="glass card m-resume"><div class="card-title" style="color:var(--orange);margin-bottom:8px">⏳ In progress</div><button class="btn sm" id="dpResume">Resume</button></div>';
+    h+='<div class="glass card m-resume"><div class="card-title" style="color:var(--orange);margin-bottom:8px">'+(run.pausedAt?'⏸ Paused':'⏳ In progress')+'</div>'+(run.pausedAt?'<div style="font-size:12px;color:var(--dim);margin-bottom:10px">'+(run.untimed?'Untimed · answers saved · timer frozen':mmss(Math.max(0,(run.endAt-run.pausedAt)/1000))+' left · timer frozen')+'</div>':'')+'<button class="btn sm" id="dpResume">Resume</button></div>';
   }
   if(all.length){
     h+='<div class="stat-row" style="margin-bottom:12px"><div class="glass stat"><div class="num">'+all.length+'</div><div class="cap">Attempts</div></div><div class="glass stat"><div class="num" style="color:'+accCol(best)+'">'+best+'%</div><div class="cap">Best accuracy</div></div><div class="glass stat"><div class="num" style="color:var(--orange)">'+st.weak.length+'</div><div class="cap">Weak Q</div></div></div>';
