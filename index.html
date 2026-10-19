@@ -2419,6 +2419,74 @@ window.p5Debug={P5:function(){return P5;},xp:xpTotal,streak:streakInfo,sync:p5Sy
 
 }catch(e){console.error("NPT phase 5 failed to start",e);}
 </script>
+<script>
+/* ==== NPT Cloud Sync v2 (values stored as JSON strings: RTDB key-safe) (Firebase Realtime DB) - additive; localStorage stays primary ==== */
+(function(){
+if(window.__nptSyncLoaded)return;window.__nptSyncLoaded=1;
+var BASE="https://npt-data-default-rtdb.asia-southeast1.firebasedatabase.app";
+var SECRET="s4kjywh6iv2gzfez3bkqgr";
+var LS=window.localStorage;
+var PROGRESS_KEYS={"npt_data_v1":1,"npt_mocks_v1":1,"npt_dpp_attempts_v1":1,"npt_backlog_v1":1,"npt_activity_v1":1,"npt_revision_flashcards_v1":1,"npt_p5_v1":1};
+var TESTS_KEY="npt_custom_tests_v1";
+var tP=null,tT=null,dirty=false,dirtyT=false,inFlight=false,badge=null;
+function ready(){return /^https:\/\//.test(BASE);}
+function url(n){return BASE+"/npt/"+SECRET+"/"+n+".json";}
+function snapshot(includeTests){
+  var o=Object.assign({},DB,{
+    mocks:(typeof MOCKS!=="undefined"&&MOCKS&&MOCKS.attempts)?MOCKS.attempts:[],
+    dppAttempts:(typeof DPPA!=="undefined"&&DPPA&&DPPA.attempts)?DPPA.attempts:[],
+    backlog:(window.nptBacklogGet?window.nptBacklogGet():undefined),
+    activity:(window.nptActGet?window.nptActGet():undefined),
+    revisionFlashcards:(typeof nptRevisionState!=="undefined")?nptRevisionState:undefined,
+    p5State:(window.p5GetState?window.p5GetState():undefined),
+    syncedAt:new Date().toISOString()
+  });
+  if(includeTests)o.customTests=(typeof CUSTOM!=="undefined")?CUSTOM:[];
+  return o;
+}
+function put(n,data,ka){return fetch(url(n),{method:"PUT",headers:{"Content-Type":"application/json"},body:JSON.stringify(JSON.stringify(data)),keepalive:!!ka});}
+function lastOk(){return parseInt(LS.getItem("npt_sync_last")||"0",10);}
+function fmt(ts){var d=new Date(ts),h=d.getHours(),m=d.getMinutes(),ap=h>=12?"PM":"AM";h=h%12||12;return h+":"+(m<10?"0":"")+m+" "+ap;}
+function paint(txt,bg){if(!badge)return;badge.textContent=txt;badge.style.background=bg;}
+function showState(s){
+  if(!badge)return;
+  if(!ready()){paint("\u2601\uFE0F off","rgba(120,120,120,.85)");return;}
+  if(s==="syncing")paint("\u2601\uFE0F ...","rgba(90,90,120,.9)");
+  else if(s==="err")paint("\u2601\uFE0F !","rgba(180,60,60,.92)");
+  else paint("\u2601\uFE0F "+fmt(lastOk()),"rgba(60,140,80,.92)");
+}
+function done(){dirty=false;LS.setItem("npt_sync_last",String(Date.now()));showState("ok");}
+function syncNow(ka){
+  if(!ready()||inFlight)return;
+  inFlight=true;showState("syncing");
+  var jobs=[put("progress",snapshot(false),ka)];
+  if(dirtyT)jobs.push(put("tests",{customTests:snapshot(true).customTests},ka));
+  Promise.all(jobs).then(function(rs){
+    rs.forEach(function(r){if(!r.ok)throw new Error("http "+r.status);});
+    dirtyT=false;done();
+  }).catch(function(){showState("err");}).then(function(){inFlight=false;});
+}
+function schedule(kind){
+  if(kind==="tests"){dirtyT=true;dirty=true;clearTimeout(tT);tT=setTimeout(function(){syncNow(false);},9000);}
+  else{dirty=true;clearTimeout(tP);tP=setTimeout(function(){syncNow(false);},6000);}
+}
+var origSet=LS.setItem.bind(LS);
+LS.setItem=function(k,v){origSet(k,v);if(PROGRESS_KEYS[k])schedule("progress");else if(k===TESTS_KEY)schedule("tests");};
+window.addEventListener("pagehide",function(){if(dirty&&!inFlight){inFlight=true;try{put("progress",snapshot(false),true);}catch(e){}}});
+function mkBadge(){
+  if(badge)return;
+  badge=document.createElement("button");
+  badge.type="button";
+  badge.style.cssText="position:fixed;right:10px;bottom:72px;z-index:9999;padding:4px 9px;border-radius:999px;border:1px solid rgba(255,255,255,.25);color:#fff;font-size:10px;font-weight:700;line-height:1.4;opacity:.92;box-shadow:0 2px 8px rgba(0,0,0,.25);";
+  badge.addEventListener("click",function(){syncNow(false);});
+  document.body.appendChild(badge);
+  showState(lastOk()?"ok":"syncing");
+}
+if(document.body)mkBadge();else document.addEventListener("DOMContentLoaded",mkBadge);
+if(ready())setTimeout(function(){syncNow(false);},5000);
+})();
+</script>
+
 </body>
 </html>
 
